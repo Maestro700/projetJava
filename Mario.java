@@ -1,6 +1,7 @@
 package projet;
 
 import java.awt.Image;
+import java.awt.Rectangle;
 
 import javax.swing.ImageIcon;
 
@@ -8,9 +9,11 @@ public class Mario extends Personnage{
 	
 	private Clavier clavier;
 	private boolean saut;
+	private boolean collision;
 	private int  TempsSaut;
 	private String str;
 	private Image img;
+	private int nbSaut;
 	
 	
 	public Mario(int x, int y) {
@@ -24,31 +27,49 @@ public class Mario extends Personnage{
 		this.clavier= new Clavier();
 		this.saut= false;
 		this.TempsSaut=0;
+		this.nbSaut=0;
+		this.collision= false;
 	}
 
 	public boolean estAuSol(Objet obj) {
 		return false;
 	}
 	
-	public boolean collison(Objet obj) {
-		return false;
+	public void collison(Objet obj) {
+		super.hitBox= new Rectangle(this.x, this.y, 28, 50);
+		if(this.hitBox.intersects(obj.hitBox)) {
+			this.collision = true;
+			clavier.setDx(0);
+			clavier.setDy(0);
+		}
+		else {
+			this.collision = false;
+			this.avancer();
+			this.saut();
+		}
 	}
 
 	public void saut() {
-		if(saut==true && this.TempsSaut<40) {
-			this.TempsSaut++;
-			this.y=this.y-clavier.getDy();
-			System.out.println(this.TempsSaut);
-		}
-		if(saut==true && this.TempsSaut==40) {
-			while(this.TempsSaut!=0) {
-				this.TempsSaut--;
- 	 			this.y= this.y-1;
- 	 			System.out.println(this.TempsSaut);
+		if(this.nbSaut==0) {
+			if(this.saut==true) {
+				if(this.TempsSaut<=35) {
+					this.TempsSaut++;
+					this.y=this.y-clavier.getDy();
+				}
+				else {
+					this.saut=false;
+					this.nbSaut=1;
+				}
 			}
-			if(this.TempsSaut==0) {
+		}
+		else {
+			this.TempsSaut=0;
+			if(this.y!=320) {
+				this.y=this.y+clavier.getDy();
 				this.saut=false;
-				this.TempsSaut=0;
+			}
+			else {
+				this.nbSaut=0;
 			}
 		}
 	}
@@ -59,11 +80,6 @@ public class Mario extends Personnage{
 	
 	@Override
 	public void avancer() {
-		this.x=this.x+clavier.getDx();
-	}
-
-	@Override
-	public void reculer() {
 		this.x=this.x+clavier.getDx();
 	}
 	

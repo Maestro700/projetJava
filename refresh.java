@@ -2,7 +2,7 @@ package projet;
 
 public class refresh implements Runnable{
 	
-	private int tauxRefresh = 40;
+	private int tauxRefresh = 10;
 
 	@Override
 	public void run() {

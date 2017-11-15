@@ -10,7 +10,6 @@ public class Clavier implements KeyListener{
 	
 	public Clavier() {
 		this.dx=0;
-		this.dy=0;
 	}
 	
 	@Override
@@ -18,7 +17,7 @@ public class Clavier implements KeyListener{
 		switch(e.getKeyCode()) {
 			case KeyEvent.VK_SPACE : 
 				inter.mario.setSaut(true); 
-				this.dy=1;
+				this.dy=5;
 				break;
 			case KeyEvent.VK_LEFT : 
 				inter.mario.setStr("marioMarcheGauche.png");
@@ -34,7 +33,6 @@ public class Clavier implements KeyListener{
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if(e.getKeyCode() == KeyEvent.VK_SPACE) { 
-			this.dy=-4; 
 		}
 		if(e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_LEFT) { 
 			this.dx=0; 
