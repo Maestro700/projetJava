@@ -1,11 +1,10 @@
-package projet;
+package model;
 
 import java.awt.Image;
 import java.awt.Rectangle;
-
 import javax.swing.ImageIcon;
 
-public abstract class Objet {
+public class Objet {
 	protected int x;
 	protected int y;
 	protected Rectangle hitBox;
@@ -18,6 +17,4 @@ public abstract class Objet {
 		this.str=str;
 		this.img=new ImageIcon(getClass().getResource("/images/"+this.str)).getImage();
 	}
-	
-	protected abstract boolean collison(int x, int y);
 }

@@ -1,21 +1,13 @@
-package projet;
+package model;
 
-import java.awt.Image;
-import java.awt.Rectangle;
+import java.util.Observable;
 
-import javax.swing.ImageIcon;
-
-public abstract class Personnage{
+public abstract class Personnage extends Observable{
 	protected int x;
 	protected int y;
-	protected Rectangle hitBox;
-	protected float gravite;
 	protected int speed;
-	protected int HP;
 	
-	protected abstract boolean estAuSol(Objet obj);
-	protected abstract void collison(Objet obj);
-	protected abstract void avancer();
+	protected abstract void avancer(int dx);
 	
 	public int getX() {
 		return x;
