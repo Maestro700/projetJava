@@ -61,23 +61,24 @@ public class VueGUI extends VueGenerale implements KeyListener{
 	public void keyPressed(KeyEvent e) {
 			switch(e.getKeyCode()) {
 			case KeyEvent.VK_SPACE :
-				mario.saut(-1);
+				control.saut(-1);
 				break;
 			case KeyEvent.VK_LEFT :
 				mario.changeImg("marioMarcheGauche.png");
-				mario.avancer(-1);
+				control.avancer(-1, true);
 				break;
 			case KeyEvent.VK_RIGHT :
 				mario.changeImg("marioMarcheDroite.png"); 
-				mario.avancer(1);
+				control.avancer(1, true);
 				break;
 			}	
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
+		if(e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_LEFT) { 
+			control.avancer(0, false);
+		}
 	}
 
 	@Override
