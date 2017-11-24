@@ -36,7 +36,7 @@ public class Mario extends Personnage{
 	}
 	
 	public void saut(int dx) {
-		this.y+=dx;
+		this.y-=dx;
 		setChanged();
 		notifyObservers();
 	}
@@ -49,4 +49,3 @@ public class Mario extends Personnage{
 		this.str = str;
 	}
 }
-

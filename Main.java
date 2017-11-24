@@ -6,7 +6,6 @@ import view.VueGUI;
 import view.VueGenerale;
 
 public class Main {
-	
 	public Main() {
 		Mario mario= new Mario(100, 320);
 		Controller control= new Controller(mario);

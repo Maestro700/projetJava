@@ -3,75 +3,46 @@ package controller;
 import model.Mario;
 import view.VueGenerale;
 
-public class Controller {
+public class Controller{
 	
-	private int tauxRefresh = 10;
-	private Thread sauter;
-	private Thread avance;
 	private Mario model; 
 	private VueGenerale vue;
+	private volatile boolean isMove;
 	
 	public Controller(Mario model) {
 		this.model = model;
-		this.avance= new Thread();
+		this.isMove= true;
 	}
-	
+
 	public void addView(VueGenerale vue) {
 		this.vue = vue;
 	}
 	
-	public void saut(int dy) {
-		sauter= new Thread(new Runnable() {
+	public void moveMario(int dx, int dy){
+		Thread move= new Thread(new Runnable(){
 			public void run() {
-				while(true) {
+				isMove=true;
+				while(isMove){
+					model.avancer(dx);
 					model.saut(dy);
 					try {
-						Thread.sleep(tauxRefresh);
-					} catch (InterruptedException e) {
+						Thread.sleep(10);
+					}
+					catch (InterruptedException e) {
 						e.printStackTrace();
 					}
+					isMove=false;
 				}
 			}
 		});
-		sauter.start();
+		move.start();
 	}
 	
-	public void avancer(int dx, boolean av) {
-		this.avance.new Runnable() {
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				
-			}
-			
-				
-		}; {
-				while(av==true) {
-					model.avancer(dx);
-					try {
-						Thread.sleep(tauxRefresh);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		});
+	public boolean isMove() {
+		return isMove;
 	}
 
-	public Thread getSauter() {
-		return sauter;
-	}
-
-	public void setSauter(Thread sauter) {
-		this.sauter = sauter;
-	}
-
-	public Thread getAvance() {
-		return avance;
-	}
-
-	public void setAvance(Thread avance) {
-		this.avance = avance;
+	public void setMove(boolean isMove) {
+		this.isMove = isMove;
 	}
 }
