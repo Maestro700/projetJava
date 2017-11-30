@@ -1,48 +1,58 @@
 package controller;
 
 import model.Mario;
+import view.VueConsole;
+import view.VueGUI;
 import view.VueGenerale;
 
 public class Controller{
 	
 	private Mario model; 
-	private VueGenerale vue;
-	private volatile boolean isMove;
+	private VueGUI vue;
+	private VueConsole console;
+	private Thread move;
 	
 	public Controller(Mario model) {
 		this.model = model;
-		this.isMove= true;
 	}
 
-	public void addView(VueGenerale vue) {
-		this.vue = vue;
+	public void addViewGUI(VueGenerale vue) {
+		this.vue = (VueGUI)vue;
 	}
 	
-	public void moveMario(int dx, int dy){
-		Thread move= new Thread(new Runnable(){
+	public void addViewConsole(VueGenerale vue) {
+		this.console = (VueConsole) vue;
+	}
+	
+	public void moveMario(){
+		move= new Thread(new Runnable(){
 			public void run() {
-				isMove=true;
-				while(isMove){
-					model.avancer(dx);
-					model.saut(dy);
+				while(true){
+						if(vue.getTouches()[0] == true) {
+							model.avancer(1);
+							model.changeImg("marioMarcheDroite.png");
+						}
+						if(vue.getTouches()[1] == true) {
+							model.avancer(-1);
+							model.changeImg("marioMarcheGauche.png");
+						}	
+						if(vue.getTouches()[2] == true) {
+							model.saut(4);
+							model.setSaut(true);
+						}
+						else {
+							model.saut(4);
+							model.setSaut(false);
+						}
 					try {
 						Thread.sleep(10);
 					}
 					catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					isMove=false;
 				}
 			}
 		});
 		move.start();
-	}
-	
-	public boolean isMove() {
-		return isMove;
-	}
-
-	public void setMove(boolean isMove) {
-		this.isMove = isMove;
 	}
 }
