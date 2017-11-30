@@ -7,6 +7,11 @@ import javax.swing.ImageIcon;
 
 import model.Objet;
 
+/**
+ * 
+ * @author Wyart Guillaume et Jacobs David
+ *Classe qui va gérer le personnage Mario
+ */
 public class Mario extends Personnage{
 	
 	private String str;
@@ -15,6 +20,13 @@ public class Mario extends Personnage{
 	private int TempsSaut;
 	private int YSolCurrent;
 	private boolean isSaut;
+	
+	/**
+	 * Constructeur qui crée Mario et ses differents mouvements
+	 * C'est à dire le saut, les collisions et les déplacments
+	 * @param x, position actuelle de mario sur l'abscisse de l'inertface
+	 * @param y, position actuelle de mario sur l'ordonnée de l'inertface
+	 */
 
 	public Mario(int x, int y) {
 		super.x= x;
@@ -29,25 +41,31 @@ public class Mario extends Personnage{
 		this.isSaut=false;
 	}
 	
+	/**
+	 * Methode qui va contenir le lien de l'image Mario et le changer lors des differents mouvements
+	 * @param str, contient l'image
+	 */
 	public void changeImg(String str) {
 		this.img=new ImageIcon(getClass().getResource("/images/"+str)).getImage();
 	}
-
-	public Image getImg() {
-		return img;
-	}
-
-	public void setImg(Image img) {
-		this.img = img;
-	}
+	
 
 	@Override
+	/**
+	 * Méthode qui va faire avancer ou reculer Mario sur l'interface avec un deplacment de dx pixel
+	 * @param dx, déplacement d'un certain nombre de pixel
+	 */
 	public void avancer(int dx) {
 		this.x=this.x+(dx*speed);
 		setChanged();
 		notifyObservers();
 	}
 	
+	/**
+	 * Méthode qui va permettre de faire sauter le mario et de revenir sur le sol via un compteur TempsSaut
+	 * et  un maximum de nombre de saut que nous pouvons réaliser
+	 * @param dy, déplacement de Mario vers le haut
+	 */
 	public void saut(int dy) {
 		if(this.nbSaut==0 && isSaut==true) {
 			if(this.TempsSaut<25) {
@@ -74,6 +92,9 @@ public class Mario extends Personnage{
 		}
 	}
 	
+	/**
+	 * Methode qui va gérer les collisions via une hitbox des differents objets
+	 */
 	public void collison(Objet obj) {
 		super.hitBox= new Rectangle(this.x, this.y, 28, 50);
 		if(this.hitBox.intersects(obj.hitBox)) {
@@ -101,6 +122,18 @@ public class Mario extends Personnage{
 		}
 	}
 	
+	
+	//Getter et Setter
+
+
+	public Image getImg() {
+		return img;
+	}
+
+	public void setImg(Image img) {
+		this.img = img;
+	}
+	
 	public String getStr() {
 		return str;
 	}
@@ -125,4 +158,3 @@ public class Mario extends Personnage{
 		this.nbSaut = nbSaut;
 	}
 }
-

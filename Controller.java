@@ -1,10 +1,15 @@
 package controller;
 
+import java.awt.Image;
+
 import model.Mario;
 import view.VueConsole;
 import view.VueGUI;
 import view.VueGenerale;
-
+/**
+ *@author Wyart Guillaume et Jacobs David
+ *Classe qui va controler les differentes vues 
+ */
 public class Controller{
 	
 	private Mario model; 
@@ -12,9 +17,19 @@ public class Controller{
 	private VueConsole console;
 	private Thread move;
 	
+	/**
+	 * Constructeur qui gére le model Mario
+	 * @param model
+	 */
 	public Controller(Mario model) {
 		this.model = model;
 	}
+	
+	
+	/**
+	 * Méthode qui ajoute la vue au controlleur
+	 * @param vue
+	 */
 
 	public void addViewGUI(VueGenerale vue) {
 		this.vue = (VueGUI)vue;
@@ -24,6 +39,11 @@ public class Controller{
 		this.console = (VueConsole) vue;
 	}
 	
+	/**
+	 * Méthode qui va permettre de "rafraichir" via un Thread l'interface graphique et
+	 * ainsi gérer les différents mouvements de Mario pour le faire bouger dans l'interface
+	 * Permet aussi de gérer plusieurs mouvements à la fois
+	 */
 	public void moveMario(){
 		move= new Thread(new Runnable(){
 			public void run() {

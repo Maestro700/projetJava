@@ -5,6 +5,12 @@ import java.util.Observable;
 
 import model.Objet;
 
+
+/**
+ * 
+ * @author Wyart Guillaume et Jacobs David
+ *Classe qui instancie les personnages du jeu
+ */
 public abstract class Personnage extends Observable{
 	protected int x;
 	protected int y;
@@ -15,6 +21,9 @@ public abstract class Personnage extends Observable{
 	
 	protected abstract void avancer(int dx);
 	protected abstract void collison(Objet obj);
+	
+	
+	// Getter et Setter
 	
 	public int getX() {
 		return x;

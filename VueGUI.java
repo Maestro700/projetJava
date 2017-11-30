@@ -15,6 +15,11 @@ import model.Mario;
 import model.Bloc;
 import model.Tuyau;
 
+/**
+ * 
+ * @author Wyart Guillaume et Jacobs David
+ *Cette classe va permettre de gérer l'interface graphique
+ */
 public class VueGUI extends VueGenerale implements KeyListener{
 	
 	private JFrame frame;
@@ -30,6 +35,12 @@ public class VueGUI extends VueGenerale implements KeyListener{
 	private Bloc bloc2= new Bloc(900, 302, "bloc.png");
 	private Image chateau;
 	
+	/**
+	 * Constructeur qui va créer l'interface graphique et y mettre les différents élements(images)
+	 * @param mario, le model qui va initialiser Mario sur l'interface
+	 * @param control, le controlleur de la vue
+	 */
+	
 	public VueGUI(Mario mario, Controller control) {
 		
 		super(mario, control);
@@ -37,7 +48,7 @@ public class VueGUI extends VueGenerale implements KeyListener{
 		this.fond= new ImageIcon(getClass().getResource("/images/fondEcran.png"));
 		this.fondImg = this.fond.getImage();
 		this.fondImg2= this.fond.getImage();
-		this.chateau=new ImageIcon(getClass().getResource("/images/chateau.png")).getImage();
+		this.chateau=new ImageIcon(getClass().getResource("/images/chateau1.png")).getImage();
 		this.touches= new boolean [3];
 		for(int i=0; i<=2; i++) {
 			touches[i]=false;
@@ -72,6 +83,9 @@ public class VueGUI extends VueGenerale implements KeyListener{
 	}
 	
 	@Override
+	/**
+	 * Méthode qui va mettre à jour l'interface et les collsions avec les objets
+	 */
 	public void update(Observable observ, Object obj) {
 		mario.collison(bloc1);
 		mario.collison(bloc2);
@@ -79,6 +93,11 @@ public class VueGUI extends VueGenerale implements KeyListener{
 		mario.collison(tuyau2);
 		conteneur.repaint();
 	}
+	
+	/**
+	 * Méthode qui gère les touches pressées sur le clavier qui vont bouger le Mario vers
+	 * la gauche, la droite ou vers le haut
+	 */
 
 	@Override
 	public void keyPressed(KeyEvent e) {
@@ -96,6 +115,9 @@ public class VueGUI extends VueGenerale implements KeyListener{
 				break;
 		}	
 	}
+	/**
+	 * Méthode qui gère les touches relachées sur le clavier
+	 */
 
 	@Override	
 	public void keyReleased(KeyEvent e) {
@@ -115,9 +137,10 @@ public class VueGUI extends VueGenerale implements KeyListener{
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
+	
+	// Getter et setter
 
 	public boolean[] getTouches() {
 		return touches;

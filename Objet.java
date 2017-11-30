@@ -4,6 +4,12 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import javax.swing.ImageIcon;
 
+/**
+ * 
+ * @author Wyart Guillaume et Jacobs David
+ * Cette classe fait la description de tous les objets dans le jeu (tuyau, bloc,...)
+ *
+ */
 public class Objet {
 	protected int x;
 	protected int y;
@@ -13,12 +19,20 @@ public class Objet {
 	protected Image img;
 	protected String str;
 	
+	/**
+	 * Constructeur qui permet de créer un objet
+	 * @param x, position de l'objet sur l'abscisse de l'interface 
+	 * @param y, position de l'objet sur l'ordonnée de l'interface
+	 * @param str, contient le lien de l'image de l'objet
+	 */
 	public Objet(int x, int y, String str) {
 		this.x=x;
 		this.y=y;
 		this.str=str;
 		this.img=new ImageIcon(getClass().getResource("/images/"+this.str)).getImage();
 	}
+	
+	//Getter et Setter
 
 	public int getX() {
 		return x;
