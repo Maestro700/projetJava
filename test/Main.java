@@ -16,6 +16,7 @@ public class Main {
 		control.addViewGUI(vueGui);
 		control.addViewConsole(vueConsole);
 		control.moveMario();
+		control.moveEnnemi();
 	}
 	public static void main(String[] args) {
 		javax.swing.SwingUtilities.invokeLater(new Runnable() {
