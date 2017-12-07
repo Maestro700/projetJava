@@ -17,7 +17,8 @@ public abstract class Personnage extends Observable{
 	protected Image img;
 	protected Rectangle hitBox;
 	protected boolean isVivant;
-	protected boolean collisionDirection []= new boolean [4];
+	protected int largeur;
+	protected int hauteur;
 	
 	public abstract void collison(Objet obj);
 	

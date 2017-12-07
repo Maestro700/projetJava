@@ -22,6 +22,8 @@ public class Mario extends Personnage{
 		super.img=new ImageIcon(getClass().getResource("/images/"+str)).getImage();
 		super.isVivant=true;
 		super.HP=3;
+		super.largeur=28;
+		super.hauteur=50;
 		this.TempsSaut=0;
 		this.nbSaut= 0;
 		this.fin=false;
@@ -61,7 +63,7 @@ public class Mario extends Personnage{
 	
 	@Override
 	public void collison(Objet obj) {
-		super.hitBox= new Rectangle(this.x, this.y, 28, 50);
+		super.hitBox= new Rectangle(this.x, this.y, this.largeur, this.hauteur);
 		if(this.hitBox.intersects(obj.hitBox)) {
 			if(obj.getClass().getName()=="model.DrapeauFin") {
 				this.fin=true;

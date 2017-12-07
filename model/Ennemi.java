@@ -5,8 +5,6 @@ import java.awt.Rectangle;
 public class Ennemi extends Personnage{
 	
 	protected int dx;
-	protected int largeur;
-	protected int hauteur;
 	
 	public Ennemi() {
 		super.isVivant=true;

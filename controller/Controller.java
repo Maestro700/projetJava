@@ -171,7 +171,6 @@ public class Controller{
 		}
 	}
 	
-	
 	public void restart() {
 		model.setVivant(true);
 		model.setHP(3);
