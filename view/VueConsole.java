@@ -17,33 +17,34 @@ import model.Mario;
 public class VueConsole extends VueGenerale {
 
 	private String currentLine;
-	private String [] tab;
+	private String [][] grille;
+	private String allLine;
 	
 	public VueConsole(Mario mario, Controller control) {
 		super(mario, control);
+		this.grille= new String [78][8];
 		this.currentLine= "";
+		this.allLine= "";
 	}
 
 	@Override
 	public void update(Observable arg0, Object arg1) {
-		try {
+		/*try {
 			BufferedReader reader =
 				        new BufferedReader(new InputStreamReader(new FileInputStream("C:/2T/java/Projet_V2/src/images/carte.txt")));
-			BufferedWriter writer= new BufferedWriter(new FileWriter("C:/2T/java/Projet_V2/src/images/carte.txt"));
-			while((currentLine = reader.readLine()) != null) {
-				System.out.println(currentLine);
-				if(!currentLine.split("-").equals("-")) {
-					tab=currentLine.split("-");
-				}
-				for(int i=0; i<tab.length; i++) {
-					if(tab[i].equals("M")) {
-						//writer.write("-", tab[i].length(), 1);
-					}
-				}
+			while((currentLine=reader.readLine())!=null) {
+					allLine=allLine.concat(currentLine + "\n");
 			}
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		String [] tab=allLine.split("\\s+");
+		for(int y=0; y<8; y++) {
+			for(int x=0; x<78; x++) {
+				grille[x][y]=tab[x+y*78];
+				System.out.println(grille[x][y]);
+			}
+		}*/
 	}
 }

@@ -1,5 +1,7 @@
 package view;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -13,10 +15,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import controller.Controller;
 import model.Mario;
 import model.Objet;
+import model.Piece;
 import model.Bloc;
 import model.DrapeauFin;
 import model.Ennemi;
@@ -26,7 +30,10 @@ import model.koopa;
 
 public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	
+	private int level;
+	private Font police;
 	private JButton restart;
+	private JButton nextLevel;
 	
 	private JFrame frame;
 	private JPanel conteneur;
@@ -38,21 +45,12 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	private Image chateauFin;
 	private Image gameOver;
 	private Image victory;
+	private Image coeur;
 	
-	private Tuyau tuyau1= new Tuyau(450, 302, "tuyauRouge.png");
-	private Tuyau tuyau2= new Tuyau(1000, 302, "tuyauRouge.png");
-	private Bloc bloc1= new Bloc(600, 250, "bloc.png");
-	private Bloc bloc2= new Bloc(900, 302, "bloc.png");
-	private Bloc bloc3= new Bloc(250, 337, "bloc.png");
-	private Bloc bloc4= new Bloc(280, 308, "bloc.png");
-	private Bloc bloc5= new Bloc(280, 337, "bloc.png");
-	private DrapeauFin drapeauFin= new DrapeauFin(1700, 187, "drapeau.png");
+	private Piece piece1=new Piece(460, 272, "piece.png");
+	private Piece piece2=new Piece(1010, 272, "piece.png");
+	
 	private ArrayList <Objet> tab;
-	private koopa koopa1= new koopa(600, 340, "champMarcheDroite.png");
-	private koopa koopa2= new koopa(900, 340, "champMarcheDroite.png");
-	private koopa koopa3= new koopa(270, 340, "champMarcheDroite.png");
-	private goomba goomba1= new goomba(850, 320, "tortueMarcheDroite.png");
-	private goomba goomba2= new goomba(550, 320, "tortueMarcheDroite.png");
 	private ArrayList <Ennemi> tabEnnemi;
 	
 	private boolean [] touches;
@@ -62,6 +60,9 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 		
 		super(mario, control);
 		
+		this.police= new Font("GILL SANS ULTRA BOLD CONDENSED", Font.PLAIN, 18);
+		this.level=1;
+		
 		this.fond= new ImageIcon(getClass().getResource("/images/fondEcran.png"));
 		this.fondImg = this.fond.getImage();
 		this.fondImg2= this.fond.getImage();
@@ -70,26 +71,11 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 		this.chateauFin=new ImageIcon(getClass().getResource("/images/chateauFin.png")).getImage();
 		this.gameOver=new ImageIcon(getClass().getResource("/images/gameOver.png")).getImage();
 		this.victory=new ImageIcon(getClass().getResource("/images/Victory.png")).getImage();
+		this.coeur= new ImageIcon(getClass().getResource("/images/coeur.png")).getImage();
 		this.touches= new boolean [3];
 		for(int i=0; i<=2; i++) {
 			touches[i]=false;
 		}
-		this.tab=new ArrayList<Objet>();
-		this.tab.add(bloc1);
-		this.tab.add(bloc2);
-		this.tab.add(bloc3);
-		this.tab.add(bloc4);
-		this.tab.add(bloc5);
-		this.tab.add(tuyau1);
-		this.tab.add(tuyau2);
-		this.tab.add(drapeauFin);
-		this.tabEnnemi=new ArrayList<Ennemi>();
-		this.tabEnnemi.add(koopa1);
-		this.tabEnnemi.add(koopa2);
-		this.tabEnnemi.add(koopa3);
-		this.tabEnnemi.add(goomba1);
-		this.tabEnnemi.add(goomba2);
-		control.addModel(tabEnnemi);
 
 		frame = new JFrame("mario");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -102,6 +88,10 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 		restart= new JButton("restart");
 		restart.setBounds(850, 300, 100, 30);
 		restart.addActionListener(this);
+		
+		nextLevel= new JButton("Next Level");
+		nextLevel.setBounds(850, 300, 100, 30);
+		nextLevel.addActionListener(this);
 
 		conteneur = new JPanel() {
 			public void paintComponent(Graphics g) {
@@ -111,11 +101,25 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 				g.drawImage(chateau, 0, 167, null);
 				g.drawImage(depart, 200, 305, null);
 				g.drawImage(chateauFin, 1800, 218, null);
+				g.setFont(police);
+				g.setColor(new Color(44, 62, 80));
+				g.drawString("Votre score acuel est :"+mario.getScore(), 0, 20);
+				g.drawString("HP : ", 450, 18);
 				for(int i=0; i<tab.size(); i++) {
-					g.drawImage(tab.get(i).getImg(), tab.get(i).getX(), tab.get(i).getY(), null);
+					if(tab.get(i).getClass().getName()!="model.Piece") {
+						g.drawImage(tab.get(i).getImg(), tab.get(i).getX(), tab.get(i).getY(), null);
+					}
+					else {
+						Piece piece= (Piece) tab.get(i);
+						if(piece.isEstRamasse()==false) {
+							g.drawImage(tab.get(i).getImg(), tab.get(i).getX(), tab.get(i).getY(), null);
+						}
+					}
 					if(tab.get(i).getClass().getName()=="model.DrapeauFin") {
 						if(mario.isFin()==true) {
-							g.drawImage(victory, 700, 0,500, 300, null);
+							System.out.println("OK");
+							g.drawImage(victory, 650, 0,500, 300, null);
+							conteneur.add(nextLevel);
 						}
 					}
 				}
@@ -136,8 +140,12 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 				}
 				if(mario.isVivant()==true) {
 					g.drawImage(mario.getImg(), mario.getX(), mario.getY(), null);
+					for(int i=0; i<mario.getHP(); i++) {
+						g.drawImage(coeur, 500+i*20, 5, null);
+					}
 				}
 				else {
+					mario.setRunning(false);
 					mario.changeImg("marioMeurt.png");
 					g.drawImage(mario.getImg(), mario.getX(), mario.getY()+10, null);
 					g.drawImage(gameOver, 750, 0, 300,300, null);
@@ -152,36 +160,88 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 		frame.setContentPane(conteneur);
 	}
 	
+	public void createLevel() {
+		if(this.level==1) {
+			this.tab=new ArrayList<Objet>();
+			this.tab.add(new Tuyau(450, 302, "tuyauRouge.png"));
+			this.tab.add(new Tuyau(1000, 302, "tuyauRouge.png"));
+			this.tab.add(new Tuyau(1300, 302, "tuyauRouge.png"));
+			this.tab.add(new Bloc(600, 250, "bloc.png"));
+			this.tab.add(new Bloc(900, 302, "bloc.png"));
+			this.tab.add(new Bloc(250, 337, "bloc.png"));
+			this.tab.add(new Bloc(280, 308, "bloc.png"));
+			this.tab.add(new Bloc(280, 337, "bloc.png"));
+			this.tab.add(new DrapeauFin(1700, 187, "drapeau.png"));
+			this.tab.add(piece1);
+			this.tab.add(piece2);
+			piece1.movePiece();
+			piece2.movePiece();
+			
+			this.tabEnnemi=new ArrayList<Ennemi>();
+			this.tabEnnemi.add(new koopa(600, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(900, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(270, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1100, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1050, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(850, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(550, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(1250, 320, "tortueMarcheDroite.png"));
+		}
+		else {
+			mario.setFin(false);
+			this.tab=new ArrayList<Objet>();
+			this.tab.add(new Tuyau(450, 302, "tuyauRouge.png"));
+			this.tab.add(new Tuyau(1000, 302, "tuyauRouge.png"));
+			this.tab.add(new Tuyau(1300, 302, "tuyauRouge.png"));
+			this.tab.add(new Bloc(600, 250, "bloc.png"));
+			this.tab.add(new Bloc(900, 302, "bloc.png"));
+			this.tab.add(new Bloc(250, 337, "bloc.png"));
+			this.tab.add(new Bloc(280, 308, "bloc.png"));
+			this.tab.add(new Bloc(280, 337, "bloc.png"));
+			this.tab.add(new DrapeauFin(1700, 187, "drapeau.png"));
+			this.tab.add(piece1);
+			this.tab.add(piece2);
+			piece1.movePiece();
+			piece2.movePiece();
+			
+			this.tabEnnemi=new ArrayList<Ennemi>();
+			this.tabEnnemi.add(new koopa(600, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(900, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(270, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1100, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1050, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(850, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(550, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(1250, 320, "tortueMarcheDroite.png"));
+		}
+	}
+	
 	@Override
 	public void update(Observable observ, Object obj) {
-		for(int i=0; i<tab.size(); i++) {
-			mario.collison(tab.get(i));
+			mario.collison(tab);
 			for(int j=0; j<tabEnnemi.size(); j++) {
 				if(tabEnnemi.get(j).isVivant()==true) {
-					tabEnnemi.get(j).collison(tab.get(i));
+					tabEnnemi.get(j).collison(tab);
 					control.collisionEnnemi(tabEnnemi.get(j));
 				}
 			}
 			conteneur.repaint();
 		}
-	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if(mario.isVivant()==true) {
-			switch(e.getKeyCode()) {
-			case KeyEvent.VK_SPACE :
-				if(mario.getNbSaut()==0) {
-					this.touches[2]=true;
-				}
-				break;
-			case KeyEvent.VK_LEFT :
-				this.touches[1]=true;
-				break;
-			case KeyEvent.VK_RIGHT :
-				this.touches[0]=true;
-				break;
-			}	
+		switch(e.getKeyCode()) {
+		case KeyEvent.VK_SPACE :
+			if(mario.getNbSaut()==0) {
+				this.touches[2]=true;
+			}
+			break;
+		case KeyEvent.VK_LEFT :
+			this.touches[1]=true;
+			break;
+		case KeyEvent.VK_RIGHT :
+			this.touches[0]=true;
+			break;
 		}
 	}
 
@@ -212,6 +272,9 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 		if(e.getSource()== restart) {
 			control.restart();
 		}
+		if(e.getSource()== nextLevel) { 
+			control.nextLevel();
+		}
 	}
 
 	public boolean[] getTouches() {
@@ -236,5 +299,37 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 
 	public void setRestart(JButton restart) {
 		this.restart = restart;
+	}
+
+	public ArrayList<Objet> getTab() {
+		return tab;
+	}
+
+	public void setTab(ArrayList<Objet> tab) {
+		this.tab = tab;
+	}
+
+	public ArrayList<Ennemi> getTabEnnemi() {
+		return tabEnnemi;
+	}
+
+	public void setTabEnnemi(ArrayList<Ennemi> tabEnnemi) {
+		this.tabEnnemi = tabEnnemi;
+	}
+
+	public int getLevel() {
+		return level;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+	}
+
+	public JButton getNextLevel() {
+		return nextLevel;
+	}
+
+	public void setNextLevel(JButton nextLevel) {
+		this.nextLevel = nextLevel;
 	}
 }

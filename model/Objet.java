@@ -19,6 +19,10 @@ public class Objet {
 		this.str=str;
 		this.img=new ImageIcon(getClass().getResource("/images/"+this.str)).getImage();
 	}
+	
+	public void changeImg(String str) {
+		this.img=new ImageIcon(getClass().getResource("/images/"+str)).getImage();
+	}
 
 	public int getX() {
 		return x;

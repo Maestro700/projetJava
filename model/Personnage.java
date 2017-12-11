@@ -2,6 +2,7 @@ package model;
 
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.Observable;
 
 import javax.swing.ImageIcon;
@@ -10,6 +11,7 @@ import model.Objet;
 
 public abstract class Personnage extends Observable{
 	protected int x;
+	protected int dx;
 	protected int y;
 	protected int speed;
 	protected int HP;
@@ -19,17 +21,22 @@ public abstract class Personnage extends Observable{
 	protected boolean isVivant;
 	protected int largeur;
 	protected int hauteur;
+	protected boolean [] isCollision= new boolean [11];
 	
-	public abstract void collison(Objet obj);
+	public abstract void collison(ArrayList<Objet> obj);
+	public abstract void avancer(int dx);
 	
 	public void changeImg(String str) {
 		this.img=new ImageIcon(getClass().getResource("/images/"+str)).getImage();
 	}
 	
-	public void avancer(int dx) {
-		this.x+=(dx*speed);
-		setChanged();
-		notifyObservers();
+	public boolean checkCollision() {
+		for(int i=0; i<isCollision.length; i++) {
+			if(isCollision[i]==true) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public int getX() {

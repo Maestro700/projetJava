@@ -1,6 +1,7 @@
 package model;
 
 import java.awt.Rectangle;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 
@@ -13,9 +14,12 @@ public class Mario extends Personnage{
 	private int YSolCurrent;
 	private boolean isSaut;
 	private boolean fin;
+	private int score;
+	private boolean running;
 
 	public Mario(int x, int y, String str) {
 		super.x= x;
+		super.dx=0;
 		super.y= y;
 		super.speed= 2;
 		super.collision=false;
@@ -29,9 +33,21 @@ public class Mario extends Personnage{
 		this.fin=false;
 		this.YSolCurrent=320;
 		this.isSaut=false;
+		this.score=0;
+		this.running=true;
 	}
 	
-	public void saut(int dy) {
+	@Override
+	public void avancer(int dx) {
+		this.dx=dx*speed;
+		if(this.checkCollision()==false || this.YSolCurrent<320) {
+			this.x+=dx*speed;
+		}
+		setChanged();
+		notifyObservers();
+	}
+	
+	public void saut(int dy) { 
 		if(this.nbSaut==0 && isSaut==true) {
 			if(this.TempsSaut<=15) {
 				this.TempsSaut++;
@@ -62,35 +78,46 @@ public class Mario extends Personnage{
 	}
 	
 	@Override
-	public void collison(Objet obj) {
-		super.hitBox= new Rectangle(this.x, this.y, this.largeur, this.hauteur);
-		if(this.hitBox.intersects(obj.hitBox)) {
-			if(obj.getClass().getName()=="model.DrapeauFin") {
-				this.fin=true;
-				notifyObservers();
+	public void collison(ArrayList<Objet> obj) {
+		super.hitBox= new Rectangle(this.x+dx, this.y, this.largeur, this.hauteur);
+		for(int i=0; i<obj.size(); i++) {
+			if (this.hitBox.intersects(obj.get(i).hitBox)) {
+				if(obj.get(i).getClass().getName()=="model.Piece") {
+					Piece piece= (Piece) obj.get(i);
+					if(piece.isEstRamasse()==false) {
+						piece.setEstRamasse(true);
+						this.score+=100;
+					}
+				}
+				else {
+					this.isCollision[i]=true;
+					if(this.y+this.hauteur/2<obj.get(i).y) {
+						this.nbSaut=0;
+						this.YSolCurrent=obj.get(i).y-this.hauteur;
+					}
+					else if(obj.get(i).getClass().getName()=="model.DrapeauFin") {
+						this.fin=true;
+						this.running=false;
+					}
+					else {
+			 			this.nbSaut=1;
+					}
+				}
 			}
 			else {
-				if(this.x<(obj.x-obj.largeur/2)) {
-					this.x-=1;
+				if(obj.get(i).getClass().getName()!="model.Piece") {
+					if(this.checkCollision()==false){
+						this.YSolCurrent=320;
+					}
+					this.isCollision[i]=false;
 				}
-				else if(this.x>(10+obj.x+obj.largeur/2)) {
-					this.x+=1;
-				}
-				else if(this.y<(obj.y-obj.hauteur/2)) {
-		 			this.y-=1;
-		 			this.nbSaut=0;
-					this.YSolCurrent=(obj.y-(obj.hauteur/2));
-				}	
-				else if(this.y>(obj.y+obj.hauteur/2)) {
-		 			this.y+=1;
-				}
-				setChanged();
-				notifyObservers();
 			}
 		}
-		else {
-			this.YSolCurrent=320;
-		}
+		notifyObservers();
+	}
+	
+	public String toString() {
+		return ""+this.score;	
 	}
 	
 	public boolean isSaut() {
@@ -116,5 +143,20 @@ public class Mario extends Personnage{
 	public void setFin(boolean fin) {
 		this.fin = fin;
 	}
-}
 
+	public int getScore() {
+		return score;
+	}
+
+	public void setScore(int score) {
+		this.score = score;
+	}
+
+	public boolean isRunning() {
+		return running;
+	}
+
+	public void setRunning(boolean running) {
+		this.running = running;
+	}
+}

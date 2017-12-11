@@ -11,10 +11,11 @@ public class Main {
 	public Main() {
 		Mario mario= new Mario(100, 320, "marioMarcheDroite.png");
 		Controller control= new Controller(mario);
-		VueGenerale vueGui= new VueGUI(mario, control);
+		VueGUI vueGui= new VueGUI(mario, control);
 		VueGenerale vueConsole= new VueConsole(mario, control);
 		control.addViewGUI(vueGui);
 		control.addViewConsole(vueConsole);
+		vueGui.createLevel();
 		control.moveMario();
 		control.moveEnnemi();
 	}

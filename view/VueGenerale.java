@@ -15,4 +15,6 @@ public abstract class VueGenerale implements Observer {
 		this.control= control;
 		mario.addObserver(this);
 	}
+	
+	
 }
