@@ -19,17 +19,19 @@ public class VueConsole extends VueGenerale {
 	private String currentLine;
 	private String [][] grille;
 	private String allLine;
+	private String lineCarte;
 	
 	public VueConsole(Mario mario, Controller control) {
 		super(mario, control);
 		this.grille= new String [78][8];
 		this.currentLine= "";
 		this.allLine= "";
+		this.lineCarte= "";
 	}
 
 	@Override
 	public void update(Observable arg0, Object arg1) {
-		/*try {
+		try {
 			BufferedReader reader =
 				        new BufferedReader(new InputStreamReader(new FileInputStream("C:/2T/java/Projet_V2/src/images/carte.txt")));
 			while((currentLine=reader.readLine())!=null) {
@@ -43,8 +45,9 @@ public class VueConsole extends VueGenerale {
 		for(int y=0; y<8; y++) {
 			for(int x=0; x<78; x++) {
 				grille[x][y]=tab[x+y*78];
-				System.out.println(grille[x][y]);
+				lineCarte+=grille[x][y];
+				System.out.println(lineCarte);
 			}
-		}*/
+		}
 	}
 }

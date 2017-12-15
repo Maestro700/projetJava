@@ -3,6 +3,7 @@ package controller;
 import model.Ennemi;
 import model.Mario;
 import model.Piece;
+import model.Son;
 import view.VueConsole;
 import view.VueGUI;
 import view.VueGenerale;
@@ -13,10 +14,12 @@ public class Controller{
 	private VueGUI vue;
 	private VueConsole console;
 	private int compteur;
+	private int fps;
 	
 	public Controller(Mario model) {
 		this.model = model;
 		this.compteur=0;
+		this.fps=30;
 	}
 
 	public void addViewGUI(VueGUI vue) {
@@ -42,7 +45,9 @@ public class Controller{
 							}
 						}
 						else {
-							model.changeImg("marioArretDroite.png");
+							if(vue.isLastKeypressed()==true) {
+								model.changeImg("marioArretDroite.png");
+							}
 						}
 						if(vue.getTouches()[1] == true) {
 							compteur++;
@@ -55,7 +60,7 @@ public class Controller{
 							}
 						}	
 						else {
-							if(vue.getTouches()[0] == false) {	
+							if(vue.isLastKeypressed()==false) {
 								model.changeImg("marioArretGauche.png");
 							}
 						}
@@ -110,7 +115,7 @@ public class Controller{
 							vue.getTabEnnemi().get(i).avancer(vue.getTabEnnemi().get(i).getDx());
 						}	
 						try {
-							Thread.sleep(5);
+							Thread.sleep(fps());
 						}
 						catch (InterruptedException e) {
 							e.printStackTrace();
@@ -122,17 +127,16 @@ public class Controller{
 		move.start();
 	}
 	
+	public int fps() {
+		return this.fps/vue.getTabEnnemi().size();
+	}
+	
 	public void collisionEnnemi(Ennemi ennemi) {
 		if(model.getHitBox().intersects(ennemi.getHitBox())) {
-			if(ennemi.getClass().getName()=="model.koopa") {
-				if(model.getY()<(ennemi.getY()-ennemi.getHauteur())) {
-					ennemi.setVivant(false);
-				}
-			}
-			else {
-				if(model.getY()<(ennemi.getY()-ennemi.getHauteur()/2)) {
-					ennemi.setVivant(false);
-				}
+			if(model.getY()<(ennemi.getY())) {
+				ennemi.setVivant(false);
+				Son ecrase = new Son("/son/ecrasePersonnage.mp3");
+				model.setScore(model.getScore()+200);
 			}
 			if(model.getX()<(ennemi.getX()-ennemi.getLargeur()/2)) {
 				if(model.getHP()>1) {
@@ -144,7 +148,7 @@ public class Controller{
 					model.setVivant(false);
 				}
 			}
-			else if(model.getX()>(10+ennemi.getX()+ennemi.getLargeur()/2)) {
+			else if(model.getX()>(ennemi.getX()+ennemi.getLargeur())) {
 				if(model.getHP()>1) {
 					model.setHP(model.getHP()-1);
 					model.setX(100);
@@ -159,6 +163,9 @@ public class Controller{
 	
 	public void ennemiRevive() {
 		for(int i=0; i<vue.getTabEnnemi().size();i++) {
+			if(vue.getTabEnnemi().get(i).isVivant()==false) {
+				model.setScore(model.getScore()-200);
+			}
 			vue.getTabEnnemi().get(i).setVivant(true);
 		}
 	}
@@ -167,6 +174,8 @@ public class Controller{
 		model.setRunning(true);
 		this.moveMario();
 		this.moveEnnemi();
+		vue.setChrono(60);
+		vue.chrono();
 		model.setVivant(true);
 		model.setHP(3);
 		model.setX(100);
@@ -183,20 +192,43 @@ public class Controller{
 	}
 	
 	public void nextLevel() {
-		model.setRunning(true);
-		this.moveMario();
-		this.moveEnnemi();
-		vue.setLevel(2);;
+		vue.setLevel(2);
+		vue.createLevel();
 		model.setX(100);
 		model.setHP(3);
+		model.setRunning(true);
 		for(int i=0; i< vue.getTab().size();i++) {
 			if(vue.getTab().get(i).getClass().getName()=="model.Piece") {
 				Piece piece= (Piece) vue.getTab().get(i);
 				piece.setEstRamasse(false);
 			}
 		}
+		this.moveMario();
+		this.moveEnnemi();
+		vue.setChrono(60);
+		vue.chrono();
 		model.changeImg("marioMarcheDroite.png");
-		vue.createLevel();
 		vue.getConteneur().remove(vue.getNextLevel());
+	}
+	
+	public void solo() {
+		model.setRunning(true);
+		this.moveMario();
+		this.moveEnnemi();
+		vue.getFrame().setContentPane(vue.getConteneur());
+		vue.getConteneur().requestFocusInWindow();
+		vue.getFrame().setVisible(true);
+		vue.chrono();
+	}
+	
+	public void multi() {
+		vue.createJoueur2();
+		model.setRunning(true);
+		this.moveMario();
+		this.moveEnnemi();
+		vue.getFrame().setContentPane(vue.getConteneur());
+		vue.getConteneur().requestFocusInWindow();
+		vue.getFrame().setVisible(true);
+		vue.chrono();
 	}
 }

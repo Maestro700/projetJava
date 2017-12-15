@@ -16,6 +16,7 @@ public class Mario extends Personnage{
 	private boolean fin;
 	private int score;
 	private boolean running;
+	private static int nbJoueur;
 
 	public Mario(int x, int y, String str) {
 		super.x= x;
@@ -34,7 +35,8 @@ public class Mario extends Personnage{
 		this.YSolCurrent=320;
 		this.isSaut=false;
 		this.score=0;
-		this.running=true;
+		this.running=false;
+		this.nbJoueur=1;
 	}
 	
 	@Override
@@ -49,6 +51,9 @@ public class Mario extends Personnage{
 	
 	public void saut(int dy) { 
 		if(this.nbSaut==0 && isSaut==true) {
+			if(this.TempsSaut==0) {
+				Son saut = new Son("/son/saut.mp3");
+			}
 			if(this.TempsSaut<=15) {
 				this.TempsSaut++;
 				this.y-=dy*speed;
@@ -80,18 +85,19 @@ public class Mario extends Personnage{
 	@Override
 	public void collison(ArrayList<Objet> obj) {
 		super.hitBox= new Rectangle(this.x+dx, this.y, this.largeur, this.hauteur);
-		for(int i=0; i<obj.size(); i++) {
+		for(int i=0; i<super.getTabObjSize(); i++) {
 			if (this.hitBox.intersects(obj.get(i).hitBox)) {
 				if(obj.get(i).getClass().getName()=="model.Piece") {
 					Piece piece= (Piece) obj.get(i);
 					if(piece.isEstRamasse()==false) {
+						Son sonPiece = new Son("/son/piece.mp3");
 						piece.setEstRamasse(true);
 						this.score+=100;
 					}
 				}
 				else {
 					this.isCollision[i]=true;
-					if(this.y+this.hauteur/2<obj.get(i).y) {
+					if((this.y+this.hauteur/2+20)<obj.get(i).y) {
 						this.nbSaut=0;
 						this.YSolCurrent=obj.get(i).y-this.hauteur;
 					}
@@ -109,8 +115,8 @@ public class Mario extends Personnage{
 					if(this.checkCollision()==false){
 						this.YSolCurrent=320;
 					}
-					this.isCollision[i]=false;
 				}
+				this.isCollision[i]=false;
 			}
 		}
 		notifyObservers();
@@ -158,5 +164,13 @@ public class Mario extends Personnage{
 
 	public void setRunning(boolean running) {
 		this.running = running;
+	}
+
+	public static int getNbJoueur() {
+		return nbJoueur;
+	}
+
+	public static void setNbJoueur(int nbJoueur) {
+		Mario.nbJoueur = nbJoueur;
 	}
 }

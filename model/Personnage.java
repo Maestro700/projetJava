@@ -10,6 +10,9 @@ import javax.swing.ImageIcon;
 import model.Objet;
 
 public abstract class Personnage extends Observable{
+	
+	private int tabObjSize=10;
+	
 	protected int x;
 	protected int dx;
 	protected int y;
@@ -21,7 +24,7 @@ public abstract class Personnage extends Observable{
 	protected boolean isVivant;
 	protected int largeur;
 	protected int hauteur;
-	protected boolean [] isCollision= new boolean [11];
+	protected boolean [] isCollision= new boolean [this.tabObjSize];
 	
 	public abstract void collison(ArrayList<Objet> obj);
 	public abstract void avancer(int dx);
@@ -91,5 +94,11 @@ public abstract class Personnage extends Observable{
 
 	public void setHP(int hP) {
 		HP = hP;
+	}
+	public int getTabObjSize() {
+		return tabObjSize;
+	}
+	public void setTabObjSize(int tabObjSize) {
+		this.tabObjSize = tabObjSize;
 	}
 }
