@@ -9,38 +9,54 @@ import model.Objet;
 
 public class Mario extends Personnage{
 	
+	private int nbJoueur;
 	private int nbSaut;
 	private int TempsSaut;
 	private int YSolCurrent;
 	private boolean isSaut;
 	private boolean fin;
-	private int score;
-	private boolean running;
-	private static int nbJoueur;
+	private static int score;
+	private static boolean running;
+	private static int HP;
+	private boolean [] touches;
+	private boolean lastKeypressed;
+	private int compteurDx;
 
 	public Mario(int x, int y, String str) {
 		super.x= x;
 		super.dx=0;
 		super.y= y;
+		super.fps=10;
 		super.speed= 2;
 		super.collision=false;
 		super.img=new ImageIcon(getClass().getResource("/images/"+str)).getImage();
 		super.isVivant=true;
-		super.HP=3;
 		super.largeur=28;
 		super.hauteur=50;
+		super.xCase=5;
 		this.TempsSaut=0;
 		this.nbSaut= 0;
 		this.fin=false;
 		this.YSolCurrent=320;
 		this.isSaut=false;
-		this.score=0;
-		this.running=false;
+		score=0;
+		HP=3;
+		running=false;
 		this.nbJoueur=1;
+		this.touches= new boolean [3];
+		for(int i=0; i<=2; i++) {
+			touches[i]=false;
+		}
+		this.lastKeypressed=false;
+		this.compteurDx=0;
 	}
 	
 	@Override
 	public void avancer(int dx) {
+		this.compteurDx+=dx;
+		if(compteurDx%10==0) {
+			this.xCase+=dx;
+		}
 		this.dx=dx*speed;
 		if(this.checkCollision()==false || this.YSolCurrent<320) {
 			this.x+=dx*speed;
@@ -92,7 +108,7 @@ public class Mario extends Personnage{
 					if(piece.isEstRamasse()==false) {
 						Son sonPiece = new Son("/son/piece.mp3");
 						piece.setEstRamasse(true);
-						this.score+=100;
+						score+=100;
 					}
 				}
 				else {
@@ -103,7 +119,7 @@ public class Mario extends Personnage{
 					}
 					else if(obj.get(i).getClass().getName()=="model.DrapeauFin") {
 						this.fin=true;
-						this.running=false;
+						running=false;
 					}
 					else {
 			 			this.nbSaut=1;
@@ -120,10 +136,6 @@ public class Mario extends Personnage{
 			}
 		}
 		notifyObservers();
-	}
-	
-	public String toString() {
-		return ""+this.score;	
 	}
 	
 	public boolean isSaut() {
@@ -150,27 +162,53 @@ public class Mario extends Personnage{
 		this.fin = fin;
 	}
 
-	public int getScore() {
+	public static int getScore() {
 		return score;
 	}
 
-	public void setScore(int score) {
-		this.score = score;
+	public static void setScore(int score) {
+		Mario.score = score;
 	}
 
-	public boolean isRunning() {
+	public static boolean isRunning() {
 		return running;
 	}
 
-	public void setRunning(boolean running) {
-		this.running = running;
+	public static void setRunning(boolean running) {
+		Mario.running = running;
 	}
 
-	public static int getNbJoueur() {
+	public int getNbJoueur() {
 		return nbJoueur;
 	}
 
-	public static void setNbJoueur(int nbJoueur) {
-		Mario.nbJoueur = nbJoueur;
+	public void setNbJoueur(int nbJoueur) {
+		this.nbJoueur = nbJoueur;
 	}
+
+	public boolean[] getTouches() {
+		return touches;
+	}
+
+	public void setTouches(boolean touches, int pos) {
+		this.touches[pos] = touches;
+	}
+
+	public boolean isLastKeypressed() {
+		return lastKeypressed;
+	}
+
+	public void setLastKeypressed(boolean lastKeypressed) {
+		this.lastKeypressed = lastKeypressed;
+	}
+	
+	public static int getHP() {
+		return HP;
+	}
+
+	public static void setHP(int hP) {
+		Mario.HP = hP;
+	}
+	
+	
 }

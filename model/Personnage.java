@@ -17,7 +17,6 @@ public abstract class Personnage extends Observable{
 	protected int dx;
 	protected int y;
 	protected int speed;
-	protected int HP;
 	protected boolean collision;
 	protected Image img;
 	protected Rectangle hitBox;
@@ -25,6 +24,8 @@ public abstract class Personnage extends Observable{
 	protected int largeur;
 	protected int hauteur;
 	protected boolean [] isCollision= new boolean [this.tabObjSize];
+	protected int fps;
+	protected int xCase;
 	
 	public abstract void collison(ArrayList<Objet> obj);
 	public abstract void avancer(int dx);
@@ -88,17 +89,28 @@ public abstract class Personnage extends Observable{
 		this.isVivant = isVivant;
 	}
 
-	public int getHP() {
-		return HP;
-	}
-
-	public void setHP(int hP) {
-		HP = hP;
-	}
 	public int getTabObjSize() {
 		return tabObjSize;
 	}
 	public void setTabObjSize(int tabObjSize) {
 		this.tabObjSize = tabObjSize;
+	}
+	public int getFps() {
+		return fps;
+	}
+	public void setFps(int fps) {
+		this.fps = fps;
+	}
+	public int getxCase() {
+		return xCase;
+	}
+	public void setxCase(int xCase) {
+		this.xCase = xCase;
+	}
+	public int getDx() {
+		return dx;
+	}
+	public void setDx(int dx) {
+		this.dx = dx;
 	}
 }

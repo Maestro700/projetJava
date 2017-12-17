@@ -8,6 +8,7 @@ public class Ennemi extends Personnage{
 	
 	public Ennemi() {
 		super.isVivant=true;
+		super.fps=30;
 		super.dx=1;
 	}
 	

@@ -1,5 +1,7 @@
 package test;
 
+import java.util.ArrayList;
+
 import controller.Controller;
 import model.Mario;
 import view.VueConsole;
@@ -9,10 +11,13 @@ import view.VueGenerale;
 public class Main {
 	
 	public Main() {
+		ArrayList <Mario> tabMario = new ArrayList<Mario>();
 		Mario mario= new Mario(100, 320, "marioMarcheDroite.png");
-		Controller control= new Controller(mario);
-		VueGUI vueGui= new VueGUI(mario, control);
-		//VueGenerale vueConsole= new VueConsole(mario, control);
+		tabMario.add(mario);
+		Controller control= new Controller(tabMario);
+		VueGUI vueGui= new VueGUI(tabMario, control);
+		//VueConsole vueConsole= new VueConsole(tabMario, control);
+		//vueConsole.createGrille();
 		control.addViewGUI(vueGui);
 		//control.addViewConsole(vueConsole);
 		vueGui.createLevel();

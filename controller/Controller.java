@@ -1,5 +1,7 @@
 package controller;
 
+import java.util.ArrayList;
+
 import model.Ennemi;
 import model.Mario;
 import model.Piece;
@@ -10,16 +12,14 @@ import view.VueGenerale;
 
 public class Controller{
 	
-	private Mario model;
+	private ArrayList <Mario> model;
 	private VueGUI vue;
 	private VueConsole console;
 	private int compteur;
-	private int fps;
 	
-	public Controller(Mario model) {
+	public Controller(ArrayList <Mario> model) {
 		this.model = model;
 		this.compteur=0;
-		this.fps=30;
 	}
 
 	public void addViewGUI(VueGUI vue) {
@@ -33,56 +33,98 @@ public class Controller{
 	public void moveMario(){
 		Thread move= new Thread(new Runnable(){
 			public void run() {
-				while(model.isRunning()){
-						if(vue.getTouches()[0] == true) {
-							compteur++;
-							model.avancer(1);
-							if(compteur%2==0) {
-								model.changeImg("marioMarcheDroite.png");
+					while(Mario.isRunning()){
+						for(int i=0; i < model.size(); i++) {
+							if(model.get(i).getTouches()[0] == true) {
+								compteur++;
+								model.get(i).avancer(1);
+								if(compteur%2==0) {
+									if(model.get(i).getNbJoueur()==1) {
+										model.get(i).changeImg("marioMarcheDroite.png");
+									}
+									else {
+										model.get(i).changeImg("luigiMarcheDroite.png");
+									}
+								}
+								else {
+									if(model.get(i).getNbJoueur()==1) {
+										model.get(i).changeImg("marioArretDroite.png");
+									}
+									else {
+										model.get(i).changeImg("luigiArretDroite.png");	
+									}
+								}
 							}
 							else {
-								model.changeImg("marioArretDroite.png");
-							}
-						}
-						else {
-							if(vue.isLastKeypressed()==true) {
-								model.changeImg("marioArretDroite.png");
-							}
-						}
-						if(vue.getTouches()[1] == true) {
-							compteur++;
-							model.avancer(-1);
-							if(compteur%2==0) {
-								model.changeImg("marioMarcheGauche.png");
-							}
+								if(model.get(i).isLastKeypressed()==true) {
+									if(model.get(i).getNbJoueur()==1) {
+										model.get(i).changeImg("marioArretDroite.png");
+									}
+									else {
+										model.get(i).changeImg("luigiArretDroite.png");	
+									}
+								}	
+							}	
+							if(model.get(i).getTouches()[1] == true) {
+								compteur++;
+								model.get(i).avancer(-1);
+								if(compteur%2==0) {
+									if(model.get(i).getNbJoueur()==1) {
+										model.get(i).changeImg("marioMarcheGauche.png");
+									}
+									else {
+										model.get(i).changeImg("luigiMarcheGauche.png");	
+									}
+								}
+								else {
+									if(model.get(i).getNbJoueur()==1) {
+										model.get(i).changeImg("marioArretGauche.png");
+									}
+									else {
+										model.get(i).changeImg("luigiArretGauche.png");	
+									}
+								}
+							}	
 							else {
-								model.changeImg("marioArretGauche.png");
+								if(model.get(i).isLastKeypressed()==false) {
+									if(model.get(i).getNbJoueur()==1) {
+										model.get(i).changeImg("marioArretGauche.png");
+									}
+									else {
+										model.get(i).changeImg("luigiArretGauche.png");	
+									}
+								}
 							}
-						}	
-						else {
-							if(vue.isLastKeypressed()==false) {
-								model.changeImg("marioArretGauche.png");
-							}
-						}
-						if(vue.getTouches()[2] == true) {
-							if(vue.getTouches()[0] == true || model.isSaut()==false) {
-								model.changeImg("marioSautDroite.png");
-							}
+							if(model.get(i).getTouches()[2] == true) {
+								if(model.get(i).getTouches()[0] == true || model.get(i).isSaut()==false) {
+									if(model.get(i).getNbJoueur()==1) {
+										model.get(i).changeImg("marioSautDroite.png");
+									}
+									else {
+										model.get(i).changeImg("luigiMarcheDroite.png");	
+									}
+								}
 							else {
-								model.changeImg("marioSautGauche.png");
+								if(model.get(i).getNbJoueur()==1) {
+									model.get(i).changeImg("marioSautGauche.png");
+								}
+								else {
+									model.get(i).changeImg("luigiMarcheGauche.png");	
+								}
 							}
-							model.saut(4);
-							model.setSaut(true);
+							model.get(i).saut(4);
+							model.get(i).setSaut(true);
 						}
 						else {
-							model.saut(4);
-							model.setSaut(false);
+							model.get(i).saut(4);
+							model.get(i).setSaut(false);
 						}
-					try {
-						Thread.sleep(10);
-					}
-					catch (InterruptedException e) {
-						e.printStackTrace();
+						try {
+							Thread.sleep(fps(model.size(), model.get(0).getFps()));
+						}
+						catch (InterruptedException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -93,8 +135,8 @@ public class Controller{
 	public void moveEnnemi() {
 		Thread move= new Thread(new Runnable() {
 			public void run() {
-				while(model.isRunning()) {
-					for(int i=0; i<vue.getTabEnnemi().size();i++) {
+					while(Mario.isRunning()) {
+						for(int i=0; i<vue.getTabEnnemi().size();i++) {
 						if(vue.getTabEnnemi().get(i).isVivant()==true) {
 							if(vue.getTabEnnemi().get(i).getDx()==-1) {
 								if(vue.getTabEnnemi().get(i).getClass().getName()=="model.koopa") {
@@ -115,7 +157,7 @@ public class Controller{
 							vue.getTabEnnemi().get(i).avancer(vue.getTabEnnemi().get(i).getDx());
 						}	
 						try {
-							Thread.sleep(fps());
+							Thread.sleep(fps(vue.getTabEnnemi().size(), vue.getTabEnnemi().get(0).getFps()));
 						}
 						catch (InterruptedException e) {
 							e.printStackTrace();
@@ -127,63 +169,78 @@ public class Controller{
 		move.start();
 	}
 	
-	public int fps() {
-		return this.fps/vue.getTabEnnemi().size();
+	public int fps(int nb, int fps) {
+		return fps/nb;
 	}
 	
 	public void collisionEnnemi(Ennemi ennemi) {
-		if(model.getHitBox().intersects(ennemi.getHitBox())) {
-			if(model.getY()<(ennemi.getY())) {
+		for(int i=0; i < model.size(); i++) {
+		if(model.get(i).getHitBox().intersects(ennemi.getHitBox())) {
+			if(model.get(i).getY()<(ennemi.getY())) {
 				ennemi.setVivant(false);
 				Son ecrase = new Son("/son/ecrasePersonnage.mp3");
-				model.setScore(model.getScore()+200);
+				Mario.setScore(Mario.getScore()+200);
 			}
-			if(model.getX()<(ennemi.getX()-ennemi.getLargeur()/2)) {
-				if(model.getHP()>1) {
-					model.setHP(model.getHP()-1);
-					model.setX(100);
+			if(model.get(i).getX()<(ennemi.getX()-ennemi.getLargeur()/2)) {
+				if(Mario.getHP()>1) {
+					Mario.setHP(Mario.getHP()-1);
+					model.get(i).setX(100);
 					this.ennemiRevive();
 				}
 				else {
-					model.setVivant(false);
+					model.get(i).setVivant(false);
 				}
 			}
-			else if(model.getX()>(ennemi.getX()+ennemi.getLargeur())) {
-				if(model.getHP()>1) {
-					model.setHP(model.getHP()-1);
-					model.setX(100);
+			else if(model.get(i).getX()>(ennemi.getX()+ennemi.getLargeur()/2)) {
+				if(Mario.getHP()>1) {
+					Mario.setHP(Mario.getHP()-1);
+					model.get(i).setX(100);
 					this.ennemiRevive();
 				}
 				else {
-					model.setVivant(false);
+					model.get(i).setVivant(false);
 				}
 			}
+		}
+		}
+	}
+	
+	public void collisionConsole(ArrayList <Mario> mario) {
+		if(console.getGrille()[mario.get(0).getxCase()+mario.get(0).getDx()][7]=="X") {
+			
 		}
 	}
 	
 	public void ennemiRevive() {
 		for(int i=0; i<vue.getTabEnnemi().size();i++) {
 			if(vue.getTabEnnemi().get(i).isVivant()==false) {
-				model.setScore(model.getScore()-200);
+				Mario.setScore(Mario.getScore()-200);
 			}
 			vue.getTabEnnemi().get(i).setVivant(true);
 		}
 	}
 	
 	public void restart() {
-		model.setRunning(true);
+		Mario.setRunning(true);
+		for(int i=0; i < model.size(); i++) {
+			model.get(i).setVivant(true);
+			Mario.setHP(3);
+			if(model.get(i).getNbJoueur()==1) {
+				model.get(i).setX(100);
+			}
+			else {
+				model.get(i).setX(50);
+			}
+			model.get(i).changeImg("marioMarcheDroite.png");
+		}
 		this.moveMario();
 		this.moveEnnemi();
 		vue.setChrono(60);
 		vue.chrono();
-		model.setVivant(true);
-		model.setHP(3);
-		model.setX(100);
-		model.changeImg("marioMarcheDroite.png");
 		this.ennemiRevive();
 		for(int i=0; i< vue.getTab().size();i++) {
 			if(vue.getTab().get(i).getClass().getName()=="model.Piece") {
-				model.setScore(0);
+				Mario.setScore(0);
 				Piece piece= (Piece) vue.getTab().get(i);
 				piece.setEstRamasse(false);
 			}
@@ -194,9 +251,17 @@ public class Controller{
 	public void nextLevel() {
 		vue.setLevel(2);
 		vue.createLevel();
-		model.setX(100);
-		model.setHP(3);
-		model.setRunning(true);
+		Mario.setRunning(true);
+		for(int i=0; i < model.size(); i++) {
+			if(model.get(i).getNbJoueur()==1) {
+				model.get(i).setX(100);
+			}
+			else {
+				model.get(i).setX(50);
+			}
+			Mario.setHP(3);
+			model.get(i).changeImg("marioMarcheDroite.png");
+		}	
 		for(int i=0; i< vue.getTab().size();i++) {
 			if(vue.getTab().get(i).getClass().getName()=="model.Piece") {
 				Piece piece= (Piece) vue.getTab().get(i);
@@ -207,12 +272,11 @@ public class Controller{
 		this.moveEnnemi();
 		vue.setChrono(60);
 		vue.chrono();
-		model.changeImg("marioMarcheDroite.png");
 		vue.getConteneur().remove(vue.getNextLevel());
 	}
 	
 	public void solo() {
-		model.setRunning(true);
+		Mario.setRunning(true);
 		this.moveMario();
 		this.moveEnnemi();
 		vue.getFrame().setContentPane(vue.getConteneur());
@@ -223,7 +287,7 @@ public class Controller{
 	
 	public void multi() {
 		vue.createJoueur2();
-		model.setRunning(true);
+		Mario.setRunning(true);
 		this.moveMario();
 		this.moveEnnemi();
 		vue.getFrame().setContentPane(vue.getConteneur());

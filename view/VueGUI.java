@@ -1,6 +1,5 @@
 package view;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -12,7 +11,6 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Observable;
 
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -71,11 +69,8 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	private ArrayList <Objet> tab;
 	private ArrayList <Ennemi> tabEnnemi;
 	
-	private boolean [] touches;
-	private boolean lastKeypressed;
-	
 	@SuppressWarnings("serial")
-	public VueGUI(Mario mario, Controller control) {
+	public VueGUI(ArrayList <Mario> mario, Controller control) {
 		
 		super(mario, control);
 		
@@ -95,12 +90,7 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 		this.gameOver=new ImageIcon(getClass().getResource("/images/gameOver.png")).getImage();
 		this.victory=new ImageIcon(getClass().getResource("/images/Victory.png")).getImage();
 		this.coeur= new ImageIcon(getClass().getResource("/images/coeur.png")).getImage();
-		this.touches= new boolean [3];
-		for(int i=0; i<=2; i++) {
-			touches[i]=false;
-		}
-		this.lastKeypressed=false;
-
+		
 		frame = new JFrame("mario");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(1996, 437);
@@ -154,7 +144,7 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 				g.drawImage(chateauFin, 1800, 218, null);
 				g.setFont(police);
 				g.setColor(new Color(44, 62, 80));
-				g.drawString("Votre score acuel est :"+mario.getScore(), 0, 20);
+				g.drawString("Votre score acuel est :"+Mario.getScore(), 0, 20);
 				g.drawString("HP : ", 450, 18);
 				g.drawString("Temps restant : "+chrono, 1000, 18);
 				for(int i=0; i<tab.size(); i++) {
@@ -168,10 +158,12 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 						}
 					}
 					if(tab.get(i).getClass().getName()=="model.DrapeauFin") {
-						if(mario.isFin()==true) {
-							fini = new Son("/son/gameVictory.wav");
-							g.drawImage(victory, 650, 0,500, 300, null);
-							conteneur.add(nextLevel);
+						for(int j=0; j<mario.size(); j++) {
+							if(mario.get(j).isFin()==true) {
+								fini = new Son("/son/gameVictory.wav");
+								g.drawImage(victory, 650, 0,500, 300, null);
+								conteneur.add(nextLevel);
+							}
 						}
 					}
 				}
@@ -190,25 +182,27 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 						}
 					}
 				}
-				if(mario.isVivant()==true) {
-					g.drawImage(mario.getImg(), mario.getX(), mario.getY(), null);
-					for(int i=0; i<mario.getHP(); i++) {
-						g.drawImage(coeur, 500+i*20, 5, null);
+				for(int i=0; i<Mario.getHP(); i++) {
+					g.drawImage(coeur, 500+i*20, 5, null);
+				}
+				for(int i=0; i< mario.size(); i++) {
+					if(mario.get(i).isVivant()==true) {
+						g.drawImage(mario.get(i).getImg(), mario.get(i).getX(), mario.get(i).getY(), 28, 50, null);
 					}
-				}
-				else {
-					mario.setRunning(false);
-					perdu= new Son("/son/gameOver.wav");
-					mario.changeImg("marioMeurt.png");
-					g.drawImage(mario.getImg(), mario.getX(), mario.getY()+10, null);
-					g.drawImage(gameOver, 750, 0, 300,300, null);
-					conteneur.add(restart);
-				}
-				if(chrono==0) {
-					conteneur.add(restart);
-					mario.setRunning(false);
-					perdu= new Son("/son/gameOver.wav");
-					g.drawImage(gameOver, 750, 0, 300,300, null);
+					else {
+						Mario.setRunning(false);
+						perdu= new Son("/son/gameOver.wav");
+						mario.get(i).changeImg("marioMeurt.png");
+						g.drawImage(mario.get(i).getImg(), mario.get(i).getX(), mario.get(i).getY()+10, null);
+						g.drawImage(gameOver, 750, 0, 300,300, null);
+						conteneur.add(restart);
+					}
+					if(chrono==0) {
+						conteneur.add(restart);
+						Mario.setRunning(false);
+						perdu= new Son("/son/gameOver.wav");
+						g.drawImage(gameOver, 750, 0, 300,300, null);
+					}
 				}
 			}
 		};
@@ -220,8 +214,9 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	}
 	
 	public void createJoueur2() {
-		mario2= new Mario(50, 320, "marioMarcheDroite.png");
+		mario2= new Mario(50, 320, "luigiArretDroite.png");
 		mario2.setNbJoueur(2);
+		this.mario.add(mario2);
 	}
 
 	public void createLevel() {
@@ -239,7 +234,9 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 			this.tab.add(piece2);
 			piece1.movePiece();
 			piece2.movePiece();
-			mario.setTabObjSize(tab.size());
+			for(int i=0; i<mario.size(); i++) {
+				mario.get(i).setTabObjSize(tab.size());
+			}
 			
 			this.tabEnnemi=new ArrayList<Ennemi>();
 			this.tabEnnemi.add(new koopa(600, 340, "champMarcheDroite.png"));
@@ -252,15 +249,16 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 			this.tabEnnemi.add(new goomba(1250, 320, "tortueMarcheDroite.png"));
 		}
 		if(this.level==2) {
-			mario.setFin(false);
+			for(int i=0; i<mario.size(); i++) {
+				mario.get(i).setFin(false);
+			}
 			
 			this.tab=new ArrayList<Objet>();
 			this.tab.add(new Tuyau(450, 302, "tuyauRouge.png"));
 			this.tab.add(new Tuyau(1000, 302, "tuyauRouge.png"));
 			this.tab.add(new Tuyau(1300, 302, "tuyauRouge.png"));
-			//this.tab.add(new Bloc(600, 250, "bloc.png"));
+			this.tab.add(new Bloc(600, 250, "bloc.png"));
 			this.tab.add(new Bloc(900, 302, "bloc.png"));
-			//this.tab.add(new Bloc(250, 337, "bloc.png"));
 			this.tab.add(new Bloc(750, 308, "bloc.png"));
 			this.tab.add(new Bloc(280, 337, "bloc.png"));
 			this.tab.add(new DrapeauFin(1700, 187, "drapeau.png"));
@@ -268,24 +266,26 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 			this.tab.add(piece2);
 			piece1.movePiece();
 			piece2.movePiece();
-			mario.setTabObjSize(tab.size());
+			for(int i=0; i<mario.size(); i++) {
+				mario.get(i).setTabObjSize(tab.size());
+			}
 			
 			this.tabEnnemi=new ArrayList<Ennemi>();
 			this.tabEnnemi.add(new koopa(600, 340, "champMarcheDroite.png"));
 			this.tabEnnemi.add(new koopa(900, 340, "champMarcheDroite.png"));
-			this.tabEnnemi.add(new koopa(270, 340, "champMarcheDroite.png"));
+			//this.tabEnnemi.add(new koopa(270, 340, "champMarcheDroite.png"));
 			this.tabEnnemi.add(new koopa(1100, 340, "champMarcheDroite.png"));
-			this.tabEnnemi.add(new koopa(1050, 340, "champMarcheDroite.png"));
+			//this.tabEnnemi.add(new koopa(1050, 340, "champMarcheDroite.png"));
 			this.tabEnnemi.add(new goomba(850, 320, "tortueMarcheDroite.png"));
 			this.tabEnnemi.add(new goomba(550, 320, "tortueMarcheDroite.png"));
-			this.tabEnnemi.add(new goomba(1250, 320, "tortueMarcheDroite.png"));
+			//this.tabEnnemi.add(new goomba(1250, 320, "tortueMarcheDroite.png"));
 		}
 	}
 	
 	public void chrono() {
 		Thread timer= new Thread(new Runnable() {
 			public void run() {
-				while(mario.isRunning()) {
+				while(Mario.isRunning()) {
 					chrono--;
 					try {
 						Thread.sleep(1000);
@@ -302,7 +302,9 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	@Override
 	public void update(Observable observ, Object obj) {
 			if(frame.getContentPane()==conteneur) {
-				mario.collison(tab);
+				for(int i=0; i<mario.size(); i++) {
+					mario.get(i).collison(tab);
+				}
 				for(int j=0; j<tabEnnemi.size(); j++) {
 					if(tabEnnemi.get(j).isVivant()==true) {
 						tabEnnemi.get(j).collison(tab);
@@ -315,56 +317,76 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if(mario.getNbJoueur()==1) {
-			switch(e.getKeyCode()) {
-			case KeyEvent.VK_SPACE :
-				if(mario.getNbSaut()==0) {
-					this.touches[2]=true;
+		for(int i=0; i < mario.size(); i++) {
+			if(mario.get(i).getNbJoueur()==1) {
+				switch(e.getKeyCode()) {
+				case KeyEvent.VK_ENTER :
+					if(mario.get(i).getNbSaut()==0) {
+						mario.get(i).setTouches(true, 2);
+					}
+					break;
+				case KeyEvent.VK_LEFT :
+					mario.get(i).setTouches(true, 1);
+					mario.get(i).setLastKeypressed(false);
+					break;
+				case KeyEvent.VK_RIGHT :
+					mario.get(i).setTouches(true, 0);
+					mario.get(i).setLastKeypressed(true);
+					break;
 				}
-				break;
-			case KeyEvent.VK_LEFT :
-				this.touches[1]=true;
-				this.lastKeypressed=false;
-				break;
-			case KeyEvent.VK_RIGHT :
-				this.touches[0]=true;
-				this.lastKeypressed=true;
-				break;
 			}
-		}
-		else {
-			switch(e.getKeyCode()) {
-			case KeyEvent.VK_SPACE :
-				if(mario.getNbSaut()==0) {
-					this.touches[2]=true;
+			else {
+				switch(e.getKeyCode()) {
+				case KeyEvent.VK_SPACE :
+					if(mario.get(i).getNbSaut()==0) {
+						mario.get(i).setTouches(true, 2);
+					}
+					break;
+				case KeyEvent.VK_Q :
+					mario.get(i).setTouches(true, 1);
+					mario.get(i).setLastKeypressed(false);
+					break;
+				case KeyEvent.VK_D :
+					mario.get(i).setTouches(true, 0);
+					mario.get(i).setLastKeypressed(true);
+					break;
 				}
-				break;
-			case KeyEvent.VK_LEFT :
-				this.touches[1]=true;
-				this.lastKeypressed=false;
-				break;
-			case KeyEvent.VK_RIGHT :
-				this.touches[0]=true;
-				this.lastKeypressed=true;
-				break;
 			}
 		}
 	}
 
 	@Override	
 	public void keyReleased(KeyEvent e) {
-		switch(e.getKeyCode()) {
-			case KeyEvent.VK_SPACE :
-				this.touches[2]=false;
-				mario.setNbSaut(1);
-				break;
-			case KeyEvent.VK_LEFT :
-				this.touches[1]=false;
-				break;
-			case KeyEvent.VK_RIGHT :
-				this.touches[0]=false;
-				break;
-		}	
+		for(int i=0; i < mario.size(); i++) {
+			if(mario.get(i).getNbJoueur()==1) {
+				switch(e.getKeyCode()) {
+					case KeyEvent.VK_ENTER :
+						mario.get(i).setTouches(false, 2);
+						mario.get(i).setNbSaut(1);
+						break;
+					case KeyEvent.VK_LEFT :
+						mario.get(i).setTouches(false, 1);
+						break;
+					case KeyEvent.VK_RIGHT :
+						mario.get(i).setTouches(false, 0);
+						break;
+				}	
+			}
+			else {
+				switch(e.getKeyCode()) {
+				case KeyEvent.VK_SPACE :
+					mario.get(i).setTouches(false, 2);
+					mario.get(i).setNbSaut(1);
+					break;
+				case KeyEvent.VK_Q :
+					mario.get(i).setTouches(false, 1);
+					break;
+				case KeyEvent.VK_D :
+					mario.get(i).setTouches(false, 0);
+					break;
+			}	
+			}
+		}
 	}
 
 	@Override
@@ -391,15 +413,7 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 			menuSon.arreteSon();
 		}
 	}
-
-	public boolean[] getTouches() {
-		return touches;
-	}
-
-	public void setTouches(boolean[] touches) {
-		this.touches = touches;
-	}
-
+	
 	public JPanel getConteneur() {
 		return conteneur;
 	}
@@ -470,14 +484,6 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 
 	public void setPerdu(Son perdu) {
 		this.perdu = perdu;
-	}
-
-	public boolean isLastKeypressed() {
-		return lastKeypressed;
-	}
-
-	public void setLastKeypressed(boolean lastKeypressed) {
-		this.lastKeypressed = lastKeypressed;
 	}
 
 	public JFrame getFrame() {
