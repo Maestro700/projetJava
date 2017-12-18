@@ -9,10 +9,20 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+/**
+ * 
+ * @author Wyart Guillaume et Jacobs David
+ * Cette classe permet de mettre de la musique dans le jeu.
+ */
 public class Son {
 	
+	//Cette variable récupère le fichier audio d'une musique.
 	private Clip clip;
 	
+	/**
+	 * Cette méthode est le constructeur de la classe et instancie la variable Clip et lance le fichier audio.
+	 * @param str donne le chemin d'accès au fichier audio.
+	 */
 	public Son(String str) {
 		try {
 			AudioInputStream audio= AudioSystem.getAudioInputStream(getClass().getResource(str));
@@ -31,6 +41,9 @@ public class Son {
 		}
 	}
 	
+	/**
+	 * Cette méthode permet d'arrêter le fichier audio.
+	 */
 	public void arreteSon() {
 		clip.stop();
 	}

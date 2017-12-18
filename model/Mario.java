@@ -7,28 +7,50 @@ import javax.swing.ImageIcon;
 
 import model.Objet;
 
+/**
+ * 
+ * @author Wyart Guillaume et Jacobs David
+ * Cette classe crée un joueur.
+ */
 public class Mario extends Personnage{
 	
+	//Cette variable nous donne le chiffre, "id", du joueur.
 	private int nbJoueur;
+	//Cette variable permet de ne pas spamer le touche espace en limitant le nombre de saut.
 	private int nbSaut;
+	//Cette variable est un compteur qui, en fonction de celui-ci, gère les différentes "étapes" du saut.
 	private int TempsSaut;
+	//Cette variable récupère la coordonnée en y du personnage.
 	private int YSolCurrent;
+	//Cette variable nous dit s'il on peut sauter ou pas. Cela évite que s'il on spam la touche pour sauter, le personnage s'envole.
 	private boolean isSaut;
+	//Cette variable permet de savoir si le niveau actuel a fini.
 	private boolean fin;
+	//Cette variable récupère le score de la partie.
 	private static int score;
+	//Cette variable gère l'activité de tout les threads du code.
 	private static boolean running;
+	//Cette variable gère le nombre d'HP du joueur.
 	private static int HP;
+	//Cette variable permet de savoir si le joueur a appuier sur une touche.
 	private boolean [] touches;
+	//cette variable retient la denière touche pressée.
 	private boolean lastKeypressed;
+	//Cette variable est un compteur pour le déplacement en console.
 	private int compteurDx;
-
+	
+	/**
+	 * Cette méthode est le constructeur de la classe et instancie toutes les variables de la classe.
+	 * @param x donne la position initiale en x du joueur.
+	 * @param y donne la position initiale en y du joueur.
+	 * @param str donne l'image initiale du joueur.
+	 */
 	public Mario(int x, int y, String str) {
 		super.x= x;
 		super.dx=0;
 		super.y= y;
 		super.fps=10;
 		super.speed= 2;
-		super.collision=false;
 		super.img=new ImageIcon(getClass().getResource("/images/"+str)).getImage();
 		super.isVivant=true;
 		super.largeur=28;
@@ -51,6 +73,10 @@ public class Mario extends Personnage{
 		this.compteurDx=0;
 	}
 	
+	/**
+	 * Cette méthode permet de déplacer le joueur sur l'axe des x.
+	 * @param dx récupère le déplacement en x.
+	 */
 	@Override
 	public void avancer(int dx) {
 		this.compteurDx+=dx;
@@ -59,12 +85,18 @@ public class Mario extends Personnage{
 		}
 		this.dx=dx*speed;
 		if(this.checkCollision()==false || this.YSolCurrent<320) {
-			this.x+=dx*speed;
+			if(this.x+dx>=0) {
+				this.x+=dx*speed;
+			}
 		}
 		setChanged();
 		notifyObservers();
 	}
 	
+	/**
+	 * Cette méthode déplace le joueur sur l'axe des y.
+	 * @param dy récupère le déplacement en y.
+	 */
 	public void saut(int dy) { 
 		if(this.nbSaut==0 && isSaut==true) {
 			if(this.TempsSaut==0) {
@@ -98,6 +130,9 @@ public class Mario extends Personnage{
 		}
 	}
 	
+	/**
+	 * Cette méthode gère les collsions entre le ou les joueurs et les objets.
+	 */
 	@Override
 	public void collison(ArrayList<Objet> obj) {
 		super.hitBox= new Rectangle(this.x+dx, this.y, this.largeur, this.hauteur);
@@ -129,6 +164,9 @@ public class Mario extends Personnage{
 			else {
 				if(obj.get(i).getClass().getName()!="model.Piece") {
 					if(this.checkCollision()==false){
+						if(this.YSolCurrent<320 && this.isSaut==false) {
+							this.nbSaut=1;
+						}
 						this.YSolCurrent=320;
 					}
 				}
@@ -138,77 +176,76 @@ public class Mario extends Personnage{
 		notifyObservers();
 	}
 	
+	/*****GETTERS*****/
 	public boolean isSaut() {
 		return isSaut;
 	}
-
-	public void setSaut(boolean isSaut) {
-		this.isSaut = isSaut;
+	
+	public static int getHP() {
+		return HP;
 	}
-
+	
 	public int getNbSaut() {
 		return nbSaut;
+	}
+	
+	public boolean isFin() {
+		return fin;
+	}
+	
+	public static boolean isRunning() {
+		return running;
+	}
+	
+	public static int getScore() {
+		return score;
+	}
+	
+	public int getNbJoueur() {
+		return nbJoueur;
+	}
+
+	public boolean[] getTouches() {
+		return touches;
+	}
+	
+	public boolean isLastKeypressed() {
+		return lastKeypressed;
+	}
+	
+	/*****SETTERS*****/
+	public void setSaut(boolean isSaut) {
+		this.isSaut = isSaut;
 	}
 
 	public void setNbSaut(int nbSaut) {
 		this.nbSaut = nbSaut;
 	}
 
-	public boolean isFin() {
-		return fin;
-	}
-
 	public void setFin(boolean fin) {
 		this.fin = fin;
-	}
-
-	public static int getScore() {
-		return score;
 	}
 
 	public static void setScore(int score) {
 		Mario.score = score;
 	}
-
-	public static boolean isRunning() {
-		return running;
-	}
-
 	public static void setRunning(boolean running) {
 		Mario.running = running;
-	}
-
-	public int getNbJoueur() {
-		return nbJoueur;
 	}
 
 	public void setNbJoueur(int nbJoueur) {
 		this.nbJoueur = nbJoueur;
 	}
 
-	public boolean[] getTouches() {
-		return touches;
-	}
-
 	public void setTouches(boolean touches, int pos) {
 		this.touches[pos] = touches;
-	}
-
-	public boolean isLastKeypressed() {
-		return lastKeypressed;
 	}
 
 	public void setLastKeypressed(boolean lastKeypressed) {
 		this.lastKeypressed = lastKeypressed;
 	}
-	
-	public static int getHP() {
-		return HP;
-	}
 
 	public static void setHP(int hP) {
 		Mario.HP = hP;
 	}
-	
-	
 }

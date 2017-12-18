@@ -27,48 +27,81 @@ import model.Son;
 import model.Tuyau;
 import model.goomba;
 import model.koopa;
-
+/**
+ * 
+ * @author Wyart Guillaume et Jacobs David
+ * Cette classe permet de créer l'interface graphique de notre jeu, mario. Elle étend Keylistener pour être à l'écoute du clavier et ActionListener pour être à l'éoute des boutons de cette classe.
+ */
 public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	
+	//Cette variable nous donne le chiffre du niveau actuelle.
 	private int level;
+	//Cette variable nous permet fixer un temps imparti pour gagner la niveau actuel. 
 	private int chrono;
 	
+	//Cette variable définitla police des JPanel.
 	private Font police;
+	//Cette variable crée un bouton restart qui apparait lorsque l'on a perdu le niveau.
 	private JButton restart;
+	//Cette variable crée un bouton pour passer le niveau lorsque celui-ci est gagné.
 	private JButton nextLevel;
+	//Cette variable crée un bouton pour lancer la partie en solo.
 	private JButton solo;
+	//Cette variable crée un bouton pour lancer la partie en multijoueur.
 	private JButton multijoueur;
 	
+	//Cette variable crée la fenètre de jeu, intitulé mario.
 	private JFrame frame;
+	//Cette variable crée le conteneur dans la fenètre qui nous permet d'afficher des éléments.
 	private JPanel conteneur;
+	//Cette variable crée le conteneur dans la fenètre qui se lance au début de la partie pour savoir si on joue en solo ou multijoueur.
 	private JPanel menu;
 	
+	//Cette variable crée l'icon de l'image de fond.
 	private ImageIcon fond;
 	
+	//Cette variable crée l'image pour le solo.
 	private Image fondMenuSolo;
+	//Cette variable crée l'image pour le multijoueur.
 	private Image fondMenuMulti;
+	//Cette variable crée l'image pour mettre le nom du jeu.
 	private Image fondMenuLabel;
+	//Ces variables créent l'image de fond du jeu.
 	private Image fondImg;
 	private Image fondImg2;
+	//Cette variable crée l'image du chateau.
 	private Image chateau;
+	//Cette variable crée l'image de la flèche de départ.
 	private Image depart;
+	//Cette variable crée ll'image du chateau de fin.
 	private Image chateauFin;
+	//Cette variable crée l'image si l'on a perdu la partie.
 	private Image gameOver;
+	//Cette variable crée l'image si l'on a gagné la partie.
 	private Image victory;
+	//Cette variable crée l'image de la vie actuelle de mario.
 	private Image coeur;
 	
+	//Cette variable crée le son si l'on a perdu la partie.
 	private Son fini;
+	//Cette variable crée le son si l'on a gagné la partie.
 	private Son perdu;
+	//Cette variable crée le son du menu.
 	private Son menuSon;
 	
-	private Mario mario2;
-	
-	private Piece piece1=new Piece(460, 272, "piece.png");
-	private Piece piece2=new Piece(1010, 272, "piece.png");
-	
+	//Cette variable crée le tableau qui regroupe tout les objets du niveau.
 	private ArrayList <Objet> tab;
+	//Cette variable crée le tableau qui regroupe tout les ennemis du niveau.
 	private ArrayList <Ennemi> tabEnnemi;
+	//Cette variable crée le tableau qui regroupe toutes les pièces du niveau.
+	private ArrayList <Piece> piece;
 	
+	/**
+	 * Cette méthode est le constructeur de la classe et définit toute les variables
+	 * et crée via les paintComponent des JPanel l'affichage de tout les éléments.
+	 * @param mario permet de récupérer le tableau des marios.
+	 * @param control permet de récupérer le controller qui gère le lien entre cette classe et le model.
+	 */
 	@SuppressWarnings("serial")
 	public VueGUI(ArrayList <Mario> mario, Controller control) {
 		
@@ -182,12 +215,12 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 						}
 					}
 				}
-				for(int i=0; i<Mario.getHP(); i++) {
-					g.drawImage(coeur, 500+i*20, 5, null);
-				}
 				for(int i=0; i< mario.size(); i++) {
 					if(mario.get(i).isVivant()==true) {
 						g.drawImage(mario.get(i).getImg(), mario.get(i).getX(), mario.get(i).getY(), 28, 50, null);
+						for(int j=0; j<Mario.getHP(); j++) {
+							g.drawImage(coeur, 500+j*20, 5, null);
+						}
 					}
 					else {
 						Mario.setRunning(false);
@@ -213,75 +246,118 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 		frame.setContentPane(menu);
 	}
 	
+	/**
+	 * Cette méthode permet de créer le 2eme joueur et le rajoute dans le tableau.
+	 */
 	public void createJoueur2() {
-		mario2= new Mario(50, 320, "luigiArretDroite.png");
+		Mario mario2= new Mario(50, 320, "luigiArretDroite.png");
 		mario2.setNbJoueur(2);
 		this.mario.add(mario2);
 	}
 
+	/**
+	 * Cette méthode crée les niveaux.
+	 */
 	public void createLevel() {
 		if(this.level==1) {
 			this.tab=new ArrayList<Objet>();
+			this.piece= new ArrayList<Piece>();
 			this.tab.add(new Tuyau(450, 302, "tuyauRouge.png"));
 			this.tab.add(new Tuyau(1000, 302, "tuyauRouge.png"));
 			this.tab.add(new Tuyau(1300, 302, "tuyauRouge.png"));
 			this.tab.add(new Bloc(600, 250, "bloc.png"));
-			this.tab.add(new Bloc(900, 302, "bloc.png"));
+			this.tab.add(new Bloc(900, 240, "bloc.png"));
+			this.tab.add(new Bloc(1500, 270, "bloc.png"));
 			this.tab.add(new Bloc(250, 337, "bloc.png"));
 			this.tab.add(new Bloc(280, 337, "bloc.png"));
 			this.tab.add(new DrapeauFin(1700, 187, "drapeau.png"));
-			this.tab.add(piece1);
-			this.tab.add(piece2);
-			piece1.movePiece();
-			piece2.movePiece();
-			for(int i=0; i<mario.size(); i++) {
-				mario.get(i).setTabObjSize(tab.size());
+			this.piece.add(new Piece(460, 272, "piece.png"));
+			this.piece.add(new Piece(1010, 272, "piece.png"));
+			this.piece.add(new Piece(700, 272, "piece.png"));
+			this.piece.add(new Piece(250, 272, "piece.png"));
+			this.piece.add(new Piece(1650, 300, "piece.png"));
+			this.piece.add(new Piece(1200, 272, "piece.png"));
+			this.tab.addAll(piece);
+			
+			for(int i=0; i < piece.size(); i++) {
+				piece.get(i).movePiece();
 			}
 			
 			this.tabEnnemi=new ArrayList<Ennemi>();
 			this.tabEnnemi.add(new koopa(600, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1500, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1600, 340, "champMarcheDroite.png"));
 			this.tabEnnemi.add(new koopa(900, 340, "champMarcheDroite.png"));
-			this.tabEnnemi.add(new koopa(270, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(320, 340, "champMarcheDroite.png"));
 			this.tabEnnemi.add(new koopa(1100, 340, "champMarcheDroite.png"));
 			this.tabEnnemi.add(new koopa(1050, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(1400, 320, "tortueMarcheDroite.png"));
 			this.tabEnnemi.add(new goomba(850, 320, "tortueMarcheDroite.png"));
 			this.tabEnnemi.add(new goomba(550, 320, "tortueMarcheDroite.png"));
 			this.tabEnnemi.add(new goomba(1250, 320, "tortueMarcheDroite.png"));
 		}
 		if(this.level==2) {
+			
 			for(int i=0; i<mario.size(); i++) {
 				mario.get(i).setFin(false);
 			}
 			
 			this.tab=new ArrayList<Objet>();
-			this.tab.add(new Tuyau(450, 302, "tuyauRouge.png"));
+			this.tab.add(new Tuyau(250, 302, "tuyauRouge.png"));
 			this.tab.add(new Tuyau(1000, 302, "tuyauRouge.png"));
-			this.tab.add(new Tuyau(1300, 302, "tuyauRouge.png"));
-			this.tab.add(new Bloc(600, 250, "bloc.png"));
-			this.tab.add(new Bloc(900, 302, "bloc.png"));
-			this.tab.add(new Bloc(750, 308, "bloc.png"));
-			this.tab.add(new Bloc(280, 337, "bloc.png"));
+			this.tab.add(new Tuyau(1630, 302, "tuyauRouge.png"));
+			this.tab.add(new Bloc(1100, 220, "bloc.png"));
+			this.tab.add(new Bloc(1430, 290, "bloc.png"));
+			this.tab.add(new Bloc(1150, 148, "bloc.png"));
+			this.tab.add(new Bloc(310, 220, "bloc.png"));
+			this.tab.add(new Bloc(620, 310, "bloc.png"));
+			this.tab.add(new Bloc(500, 220, "bloc.png"));
+			this.tab.add(new Bloc(690, 220, "bloc.png"));
+			this.tab.add(new Bloc(880, 220, "bloc.png"));
 			this.tab.add(new DrapeauFin(1700, 187, "drapeau.png"));
-			this.tab.add(piece1);
-			this.tab.add(piece2);
-			piece1.movePiece();
-			piece2.movePiece();
-			for(int i=0; i<mario.size(); i++) {
-				mario.get(i).setTabObjSize(tab.size());
+			this.piece.add(new Piece(460, 272, "piece.png"));
+			this.piece.add(new Piece(1010, 272, "piece.png"));
+			this.piece.add(new Piece(700, 272, "piece.png"));
+			this.piece.add(new Piece(250, 272, "piece.png"));
+			this.piece.add(new Piece(1650, 300, "piece.png"));
+			this.piece.add(new Piece(1200, 272, "piece.png"));
+			this.tab.addAll(piece);
+
+			for(int i=0; i < piece.size(); i++) {
+				piece.get(i).movePiece();
+			}
+			
+			for(int i=0; i < mario.size(); i++) {
+				mario.get(i).setIsCollision(new boolean [tab.size()]);
 			}
 			
 			this.tabEnnemi=new ArrayList<Ennemi>();
 			this.tabEnnemi.add(new koopa(600, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1350, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1485, 340, "champMarcheDroite.png"));
 			this.tabEnnemi.add(new koopa(900, 340, "champMarcheDroite.png"));
-			//this.tabEnnemi.add(new koopa(270, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(500, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(700, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(270, 340, "champMarcheDroite.png"));
 			this.tabEnnemi.add(new koopa(1100, 340, "champMarcheDroite.png"));
-			//this.tabEnnemi.add(new koopa(1050, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1050, 340, "champMarcheDroite.png"));
 			this.tabEnnemi.add(new goomba(850, 320, "tortueMarcheDroite.png"));
 			this.tabEnnemi.add(new goomba(550, 320, "tortueMarcheDroite.png"));
-			//this.tabEnnemi.add(new goomba(1250, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(1400, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(1250, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(800, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(360, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(740, 320, "tortueMarcheDroite.png"));
+		}
+		
+		if(this.level==3) {
+			
 		}
 	}
 	
+	/**
+	 * Cette méthode crée un thread qui permet de décrémenté le chrono toutes les secondes.
+	 */
 	public void chrono() {
 		Thread timer= new Thread(new Runnable() {
 			public void run() {
@@ -299,22 +375,28 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 		timer.start();
 	}
 	
+	/**
+	 * Cette méthode est appelé à chaque fois que le modèle la demande via le notifyObserver() et permet de rafraichir les images.
+	 */
 	@Override
 	public void update(Observable observ, Object obj) {
-			if(frame.getContentPane()==conteneur) {
-				for(int i=0; i<mario.size(); i++) {
-					mario.get(i).collison(tab);
-				}
-				for(int j=0; j<tabEnnemi.size(); j++) {
-					if(tabEnnemi.get(j).isVivant()==true) {
-						tabEnnemi.get(j).collison(tab);
-						control.collisionEnnemi(tabEnnemi.get(j));
-					}
+		if(frame.getContentPane()==conteneur) {
+			for(int i=0; i<mario.size(); i++) {
+				mario.get(i).collison(tab);
+			}
+			for(int j=0; j<tabEnnemi.size(); j++) {
+				if(tabEnnemi.get(j).isVivant()==true) {
+					tabEnnemi.get(j).collison(tab);
+					control.collisionEnnemi(tabEnnemi.get(j));
 				}
 			}
-			frame.getContentPane().repaint();
 		}
-
+		frame.getContentPane().repaint();
+	}
+	
+	/**
+	 * Cette méthode est appelée dés que l'on appuie sur les touches.
+	 */
 	@Override
 	public void keyPressed(KeyEvent e) {
 		for(int i=0; i < mario.size(); i++) {
@@ -354,7 +436,9 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 			}
 		}
 	}
-
+	/**
+	 * Cette méthode est appelée dés que l'on relâche un touche.
+	 */
 	@Override	
 	public void keyReleased(KeyEvent e) {
 		for(int i=0; i < mario.size(); i++) {
@@ -388,12 +472,15 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 			}
 		}
 	}
-
+	
 	@Override
 	public void keyTyped(KeyEvent e) {
 		
 	}
 	
+	/**
+	 * Cette méthode est apellée dés que l'on appuie su un bouton.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(e.getSource()== restart) {
@@ -414,83 +501,93 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 		}
 	}
 	
+	/*****GETTERS*****/
 	public JPanel getConteneur() {
 		return conteneur;
 	}
-
-	public void setConteneur(JPanel conteneur) {
-		this.conteneur = conteneur;
-	}
-
+	
 	public JButton getRestart() {
 		return restart;
+	}
+	
+	public ArrayList<Objet> getTab() {
+		return tab;
+	}
+	
+	public ArrayList<Ennemi> getTabEnnemi() {
+		return tabEnnemi;
+	}
+	
+	public int getLevel() {
+		return level;
+	}
+	
+	public JButton getNextLevel() {
+		return nextLevel;
+	}
+	
+	public int getChrono() {
+		return chrono;
+	}
+	
+	public Son getPerdu() {
+		return perdu;
+	}
+	
+	public Son getFini() {
+		return fini;
+	}
+	
+	public JFrame getFrame() {
+		return frame;
+	}
+	
+	public ArrayList<Piece> getPiece() {
+		return piece;
+	}
+	
+	/*****SETTERS*****/
+	public void setConteneur(JPanel conteneur) {
+		this.conteneur = conteneur;
 	}
 
 	public void setRestart(JButton restart) {
 		this.restart = restart;
 	}
 
-	public ArrayList<Objet> getTab() {
-		return tab;
-	}
-
 	public void setTab(ArrayList<Objet> tab) {
 		this.tab = tab;
-	}
-
-	public ArrayList<Ennemi> getTabEnnemi() {
-		return tabEnnemi;
 	}
 
 	public void setTabEnnemi(ArrayList<Ennemi> tabEnnemi) {
 		this.tabEnnemi = tabEnnemi;
 	}
 
-	public int getLevel() {
-		return level;
-	}
-
 	public void setLevel(int level) {
 		this.level = level;
-	}
-
-	public JButton getNextLevel() {
-		return nextLevel;
 	}
 
 	public void setNextLevel(JButton nextLevel) {
 		this.nextLevel = nextLevel;
 	}
 
-	public int getChrono() {
-		return chrono;
-	}
-
 	public void setChrono(int chrono) {
 		this.chrono = chrono;
-	}
-
-	public Son getFini() {
-		return fini;
 	}
 
 	public void setFini(Son fini) {
 		this.fini = fini;
 	}
 
-	public Son getPerdu() {
-		return perdu;
-	}
-
 	public void setPerdu(Son perdu) {
 		this.perdu = perdu;
 	}
 
-	public JFrame getFrame() {
-		return frame;
-	}
-
 	public void setFrame(JFrame frame) {
 		this.frame = frame;
+	}
+
+	public void setPiece(ArrayList<Piece> piece) {
+		this.piece = piece;
 	}
 }
