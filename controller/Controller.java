@@ -2,7 +2,6 @@ package controller;
 
 import java.util.ArrayList;
 
-import model.Client;
 import model.Ennemi;
 import model.Mario;
 import model.Piece;
@@ -26,6 +25,10 @@ public class Controller{
 	private VueConsole console;
 	//Cette variable permet de lancer un compteur qui gère les images du jeu.
 	private int compteur;
+	//Cette variable gère le déplacement en y dans la console.
+	private int dyCon;
+	//Cette variable gère le déplacement en x dans la console.
+	private int dxCon;
 	
 	/**
 	 * Cette méthode est le constructeur de la classe Controller.
@@ -34,6 +37,8 @@ public class Controller{
 	public Controller(ArrayList <Mario> model) {
 		this.model = model;
 		this.compteur=0;
+		this.dxCon=0;
+		this.dyCon=0;
 	}
 	
 	/**
@@ -59,9 +64,9 @@ public class Controller{
 		Thread move= new Thread(new Runnable(){
 			public void run() {
 					while(Mario.isRunning()){
+						compteur++;
 						for(int i=0; i < model.size(); i++) {
 							if(model.get(i).getTouches()[0] == true) {
-								compteur++;
 								model.get(i).avancer(1);
 								if(compteur%2==0) {
 									if(model.get(i).getNbJoueur()==1) {
@@ -91,7 +96,6 @@ public class Controller{
 								}	
 							}	
 							if(model.get(i).getTouches()[1] == true) {
-								compteur++;
 								model.get(i).avancer(-1);
 								if(compteur%2==0) {
 									if(model.get(i).getNbJoueur()==1) {
@@ -167,19 +171,39 @@ public class Controller{
 						for(int i=0; i<vue.getTabEnnemi().size();i++) {
 						if(vue.getTabEnnemi().get(i).isVivant()==true) {
 							if(vue.getTabEnnemi().get(i).getDx()==-1) {
-								if(vue.getTabEnnemi().get(i).getClass().getName()=="model.koopa") {
-									vue.getTabEnnemi().get(i).changeImg("champMarcheGauche.png");
-								}
-								else {
-									vue.getTabEnnemi().get(i).changeImg("tortueMarcheGauche.png");
-								}
+									if(vue.getTabEnnemi().get(i).getClass().getName()=="model.koopa") {
+										if(compteur%2==0) {
+											vue.getTabEnnemi().get(i).changeImg("champMarcheGauche.png");
+										}
+										else {
+											vue.getTabEnnemi().get(i).changeImg("champArretGauche.png");
+										}
+									}
+									else {
+										if(compteur%2==0) {
+											vue.getTabEnnemi().get(i).changeImg("tortueMarcheGauche.png");
+										}
+										else {
+											vue.getTabEnnemi().get(i).changeImg("tortueArretGauche.png");
+										}
+									}
 							}
 							else {
 								if(vue.getTabEnnemi().get(i).getClass().getName()=="model.koopa") {
-									vue.getTabEnnemi().get(i).changeImg("champMarcheDroite.png");
+									if(compteur%2==0) {
+										vue.getTabEnnemi().get(i).changeImg("champMarcheDroite.png");
+									}
+									else {
+										vue.getTabEnnemi().get(i).changeImg("champArretDroite.png");
+									}
 								}
 								else {
-									vue.getTabEnnemi().get(i).changeImg("tortueMarcheDroite.png");
+									if(compteur%2==0) {
+										vue.getTabEnnemi().get(i).changeImg("tortueMarcheDroite.png");
+									}
+									else {
+										vue.getTabEnnemi().get(i).changeImg("tortueArretDroite.png");
+									}
 								}
 							}
 							vue.getTabEnnemi().get(i).avancer(vue.getTabEnnemi().get(i).getDx());
@@ -213,33 +237,115 @@ public class Controller{
 	 */
 	public void collisionEnnemi(Ennemi ennemi) {
 		for(int i=0; i < model.size(); i++) {
-		if(model.get(i).getHitBox().intersects(ennemi.getHitBox())) {
-			if(model.get(i).getY()<(ennemi.getY())) {
-				ennemi.setVivant(false);
-				Son ecrase = new Son("/son/ecrasePersonnage.mp3");
-				Mario.setScore(Mario.getScore()+200);
-			}
-			if(model.get(i).getX()<(ennemi.getX()-ennemi.getLargeur()/2)) {
-				if(Mario.getHP()>1) {
-					Mario.setHP(Mario.getHP()-1);
-					model.get(i).setX(100);
-					this.ennemiRevive();
+			if(model.get(i).getHitBox().intersects(ennemi.getHitBox())) {
+				if(model.get(i).getY()<(ennemi.getY())) {
+					ennemi.setVivant(false);
+					Son ecrase = new Son("/son/ecrasePersonnage.mp3");
+					Mario.setScore(Mario.getScore()+200);
 				}
-				else {
-					model.get(i).setVivant(false);
+				if(model.get(i).getX()<(ennemi.getX()-ennemi.getLargeur()/2)) {
+					if(Mario.getHP()>1) {
+						Mario.setHP(Mario.getHP()-1);
+						model.get(i).setX(100);
+						this.ennemiRevive();
+					}
+					else {
+						model.get(i).setVivant(false);
+					}
 				}
-			}
-			else if(model.get(i).getX()>(ennemi.getX()+ennemi.getLargeur()/2)) {
-				if(Mario.getHP()>1) {
-					Mario.setHP(Mario.getHP()-1);
-					model.get(i).setX(100);
-					this.ennemiRevive();
-				}
-				else {
-					model.get(i).setVivant(false);
+				else if(model.get(i).getX()>(ennemi.getX()+ennemi.getLargeur()/2)) {
+					if(Mario.getHP()>1) {
+						Mario.setHP(Mario.getHP()-1);
+						model.get(i).setX(100);
+						this.ennemiRevive();
+					}
+					else {
+						model.get(i).setVivant(false);
+					}
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Cette méthode déplace mario "M" dans la console vers la droite.
+	 */
+	public void moveForward() {
+		this.dxCon=1;
+		if(this.collisionMarioConsole()==false) {
+			model.get(0).avancer(10);
+			for(int y=0; y<8; y++) {
+				for(int x=0; x<78; x++) {
+					if(console.getGrille()[x][y].equals("M")) {
+						console.setGrille(x, y, "-");
+						int newPos= x+1;
+						console.setGrille(newPos, y, "M");
+						return;
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Cette méthode déplace mario "M" dans la console vers la gauche.
+	 */
+	public void moveBackward() {
+		this.dxCon=-1;
+		if(this.collisionMarioConsole()==false) {
+			model.get(0).avancer(-10);
+			for(int y=0; y<8; y++) {
+				for(int x=0; x<78; x++) {
+					if(console.getGrille()[x][y].equals("M")) {
+						console.setGrille(x, y, "-");
+						int newPos= x-1;
+						console.setGrille(newPos, y, "M");
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Cette méthode déplace mario "M" dans la console vers le haut.
+	 */
+	public void moveUp() {
+		this.dyCon=-1;
+		if(this.collisionMarioConsole()==false) {
+			model.get(0).saut(20);
+			model.get(0).setSaut(true);
+			for(int y=0; y<8; y++) {
+				for(int x=0; x<78; x++) {
+					if(console.getGrille()[x][y].equals("M")) {
+						console.setGrille(x, y, "-");
+						int newPos= y-1;
+						console.setGrille(x, newPos, "M");
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Cette méthode déplace mario "M" dans la console vers le bas.
+	 */
+	public void moveDown() {
+		this.dyCon=1;
+		if(this.collisionMarioConsole()==false) {
+			model.get(0).saut(-20);
+			model.get(0).setSaut(true);
+			for(int y=0; y<8; y++) {
+				for(int x=0; x<78; x++) {
+					if(y<6) {
+						if(console.getGrille()[x][y].equals("M")) {
+							console.setGrille(x, y, "-");
+							int newPos= y+1;
+							console.setGrille(x, newPos, "M");
+							return;
+						}
+					}
+				}
+			}
 		}
 	}
 	
@@ -247,10 +353,58 @@ public class Controller{
 	 * Cette méthode gère les collsions dans l'interface console.
 	 * @param mario récupère le tableau des joueurs.
 	 */
-	public void collisionConsole(ArrayList <Mario> mario) {
-		if(console.getGrille()[mario.get(0).getxCase()+mario.get(0).getDx()][7]=="X") {
-			
+	public boolean collisionMarioConsole() {
+		for(int y=0; y<8; y++) {
+			for(int x=0; x<78; x++) {
+				if(console.getGrille()[x][y].equals("M")) {
+					if(console.getGrille()[x+dxCon][y+dyCon].equals("x")) {
+						dxCon=0;
+						dyCon=0;
+						return true;
+					}
+				}
+			}
 		}
+		return false;
+	}
+	
+	/**
+	 * Cette méthode vérifie si les ennemis rentrent en collision.
+	 * @return true si ils vont rentrés en collision, au sinon false.
+	 */
+	public boolean collisionEnnemiConsole() {
+		for(int y=0; y<8; y++) {
+			for(int x=0; x<78; x++) {
+				if(console.getGrille()[x][y].equals("E")) {
+					if(console.getGrille()[x+dxCon][y+dyCon].equals("x")) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Cette méthode déplace les ennemis "E" dans la console.
+	 */
+	public void moveEnnemiConsole() {
+		Thread moveEnnemi= new Thread(new Runnable() {
+			public void run() {
+				for(int y=0; y<8; y++) {
+					for(int x=0; x<78; x++) {
+						while(true) {
+							if(console.getGrille()[x][y].equals("E")) {
+								console.setGrille(x, y, "-");
+								int newPos= x+1;
+								console.setGrille(newPos, y, "E");
+							}
+						}
+					}
+				}
+			}
+		});
+		moveEnnemi.start();
 	}
 	
 	/**
@@ -269,6 +423,8 @@ public class Controller{
 	 * Cette méthode permet que losque l'on perd et que l'on appui sur le bouton adéquat de relancer le niveau.
 	 */
 	public void restart() {
+		vue.setLevel(1);
+		vue.createLevel();
 		Mario.setRunning(true);
 		for(int i=0; i < model.size(); i++) {
 			model.get(i).setVivant(true);
@@ -285,6 +441,7 @@ public class Controller{
 		this.moveEnnemi();
 		vue.setChrono(60);
 		vue.chrono();
+		Mario.setNbMort(Mario.getNbMort()+1);
 		this.ennemiRevive();
 		for(int i=0; i< vue.getTab().size();i++) {
 			if(vue.getTab().get(i).getClass().getName()=="model.Piece") {
@@ -294,6 +451,8 @@ public class Controller{
 			}
 		}
 		vue.getConteneur().remove(vue.getRestart());
+		vue.getSql().setNbMortDB(vue.getSql().getNbMortDB()+1);
+		vue.getSql().update();
 	}
 	
 	/**
@@ -326,12 +485,14 @@ public class Controller{
 		vue.setChrono(60);
 		vue.chrono();
 		vue.getConteneur().remove(vue.getNextLevel());
+		vue.getSql().update();
 	}
 	
 	/**
 	 * Cette méthode lance le solo si l'on a appuié sur le bouton solo dans le menu.
 	 */
 	public void solo() {
+		vue.createLevel();
 		Mario.setRunning(true);
 		this.moveMario();
 		this.moveEnnemi();
@@ -346,6 +507,7 @@ public class Controller{
 	 */
 	public void multi() {
 		vue.createJoueur2();
+		vue.createLevel();
 		Mario.setRunning(true);
 		this.moveMario();
 		this.moveEnnemi();

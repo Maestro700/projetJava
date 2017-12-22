@@ -1,12 +1,12 @@
 package view;
 
 import java.io.BufferedReader;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Observable;
+import java.util.Scanner;
 
 import controller.Controller;
 import model.Mario;
@@ -28,6 +28,8 @@ public class VueConsole extends VueGenerale {
 	private String lineCarte;
 	//Cette variable permet de réduire le nombre de rafraichisement de l'interface console.
 	private int compteur;
+	//Cette variable capte les inputs dans la console.
+	private Scanner scanner;
 	
 	/**
 	 * Cette méthode est la constructeur de la classe qui instancie toutes les variables.
@@ -46,12 +48,22 @@ public class VueConsole extends VueGenerale {
 	/**
 	 * Cette méthode récupère la lettre entrée dans l'invite de commande.
 	 */
-	/*public void scan() {
-		Scanner scanner= new Scanner(System.in);
-		if(scanner.nextLine()=="d") {
-			mario.get(0).avancer(1);
-		}
-	}*/
+	public void scan() {
+		Thread moveConsole= new Thread(new Runnable() {
+			public void run() {
+				while(true) {
+					scanner= new Scanner(System.in);
+					switch(scanner.nextLine()) {
+					case "d" : control.moveForward(); break;
+					case "q" : control.moveBackward(); break;
+					case "z" : control.moveUp(); break;
+					case "s" : control.moveDown(); break;
+					}
+				}
+			}
+		});
+		moveConsole.start();
+	}
 	
 	/**
 	 * Cette méthode crée la grille de départ en lisant le fichier texte.
@@ -97,8 +109,8 @@ public class VueConsole extends VueGenerale {
 	@Override
 	public void update(Observable arg0, Object arg1) {
 		compteur++;
-		if(compteur%10==0) {
-			//scan();
+		if(compteur%100==0) {
+			control.collisionMarioConsole();
 			this.afficheGrille();
 		}
 	}
@@ -109,7 +121,7 @@ public class VueConsole extends VueGenerale {
 	}
 	
 	/*****SETTERS*****/
-	public void setGrille(String[][] grille) {
-		this.grille = grille;
+	public void setGrille(int posX, int posY, String str) {
+		grille[posX][posY]= str;
 	}
 }

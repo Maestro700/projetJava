@@ -32,12 +32,12 @@ public class Mario extends Personnage{
 	private static boolean running;
 	//Cette variable gère le nombre d'HP du joueur.
 	private static int HP;
+	//Cette variable nous permet de compter le nombre de mort.
+	private static int nbMort;
 	//Cette variable permet de savoir si le joueur a appuier sur une touche.
 	private boolean [] touches;
 	//cette variable retient la denière touche pressée.
 	private boolean lastKeypressed;
-	//Cette variable est un compteur pour le déplacement en console.
-	private int compteurDx;
 	
 	/**
 	 * Cette méthode est le constructeur de la classe et instancie toutes les variables de la classe.
@@ -55,7 +55,6 @@ public class Mario extends Personnage{
 		super.isVivant=true;
 		super.largeur=28;
 		super.hauteur=50;
-		super.xCase=5;
 		this.TempsSaut=0;
 		this.nbSaut= 0;
 		this.fin=false;
@@ -63,6 +62,7 @@ public class Mario extends Personnage{
 		this.isSaut=false;
 		score=0;
 		HP=3;
+		nbMort=0;
 		running=false;
 		this.nbJoueur=1;
 		this.touches= new boolean [3];
@@ -70,7 +70,6 @@ public class Mario extends Personnage{
 			touches[i]=false;
 		}
 		this.lastKeypressed=false;
-		this.compteurDx=0;
 	}
 	
 	/**
@@ -79,10 +78,6 @@ public class Mario extends Personnage{
 	 */
 	@Override
 	public void avancer(int dx) {
-		this.compteurDx+=dx;
-		if(compteurDx%10==0) {
-			this.xCase+=dx;
-		}
 		this.dx=dx*speed;
 		if(this.checkCollision()==false || this.YSolCurrent<320) {
 			if(this.x+dx>=0) {
@@ -136,7 +131,7 @@ public class Mario extends Personnage{
 	@Override
 	public void collison(ArrayList<Objet> obj) {
 		super.hitBox= new Rectangle(this.x+dx, this.y, this.largeur, this.hauteur);
-		for(int i=0; i<super.getTabObjSize(); i++) {
+		for(int i=0; i<obj.size(); i++) {
 			if (this.hitBox.intersects(obj.get(i).hitBox)) {
 				if(obj.get(i).getClass().getName()=="model.Piece") {
 					Piece piece= (Piece) obj.get(i);
@@ -147,7 +142,7 @@ public class Mario extends Personnage{
 					}
 				}
 				else {
-					this.isCollision[i]=true;
+					this.getIsCollision().set(i, true);
 					if((this.y+this.hauteur/2+20)<obj.get(i).y) {
 						this.nbSaut=0;
 						this.YSolCurrent=obj.get(i).y-this.hauteur;
@@ -170,7 +165,7 @@ public class Mario extends Personnage{
 						this.YSolCurrent=320;
 					}
 				}
-				this.isCollision[i]=false;
+				this.getIsCollision().set(i, false);
 			}
 		}
 		notifyObservers();
@@ -213,6 +208,10 @@ public class Mario extends Personnage{
 		return lastKeypressed;
 	}
 	
+	public static int getNbMort() {
+		return nbMort;
+	}
+	
 	/*****SETTERS*****/
 	public void setSaut(boolean isSaut) {
 		this.isSaut = isSaut;
@@ -247,5 +246,9 @@ public class Mario extends Personnage{
 
 	public static void setHP(int hP) {
 		Mario.HP = hP;
+	}
+
+	public static void setNbMort(int nbMort) {
+		Mario.nbMort = nbMort;
 	}
 }
