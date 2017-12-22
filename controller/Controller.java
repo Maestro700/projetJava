@@ -2,7 +2,6 @@ package controller;
 
 import java.util.ArrayList;
 
-import model.Client;
 import model.Ennemi;
 import model.Mario;
 import model.Piece;
@@ -59,9 +58,9 @@ public class Controller{
 		Thread move= new Thread(new Runnable(){
 			public void run() {
 					while(Mario.isRunning()){
+						compteur++;
 						for(int i=0; i < model.size(); i++) {
 							if(model.get(i).getTouches()[0] == true) {
-								compteur++;
 								model.get(i).avancer(1);
 								if(compteur%2==0) {
 									if(model.get(i).getNbJoueur()==1) {
@@ -91,7 +90,6 @@ public class Controller{
 								}	
 							}	
 							if(model.get(i).getTouches()[1] == true) {
-								compteur++;
 								model.get(i).avancer(-1);
 								if(compteur%2==0) {
 									if(model.get(i).getNbJoueur()==1) {
@@ -167,19 +165,39 @@ public class Controller{
 						for(int i=0; i<vue.getTabEnnemi().size();i++) {
 						if(vue.getTabEnnemi().get(i).isVivant()==true) {
 							if(vue.getTabEnnemi().get(i).getDx()==-1) {
-								if(vue.getTabEnnemi().get(i).getClass().getName()=="model.koopa") {
-									vue.getTabEnnemi().get(i).changeImg("champMarcheGauche.png");
-								}
-								else {
-									vue.getTabEnnemi().get(i).changeImg("tortueMarcheGauche.png");
-								}
+									if(vue.getTabEnnemi().get(i).getClass().getName()=="model.koopa") {
+										if(compteur%2==0) {
+											vue.getTabEnnemi().get(i).changeImg("champMarcheGauche.png");
+										}
+										else {
+											vue.getTabEnnemi().get(i).changeImg("champArretGauche.png");
+										}
+									}
+									else {
+										if(compteur%2==0) {
+											vue.getTabEnnemi().get(i).changeImg("tortueMarcheGauche.png");
+										}
+										else {
+											vue.getTabEnnemi().get(i).changeImg("tortueArretGauche.png");
+										}
+									}
 							}
 							else {
 								if(vue.getTabEnnemi().get(i).getClass().getName()=="model.koopa") {
-									vue.getTabEnnemi().get(i).changeImg("champMarcheDroite.png");
+									if(compteur%2==0) {
+										vue.getTabEnnemi().get(i).changeImg("champMarcheDroite.png");
+									}
+									else {
+										vue.getTabEnnemi().get(i).changeImg("champArretDroite.png");
+									}
 								}
 								else {
-									vue.getTabEnnemi().get(i).changeImg("tortueMarcheDroite.png");
+									if(compteur%2==0) {
+										vue.getTabEnnemi().get(i).changeImg("tortueMarcheDroite.png");
+									}
+									else {
+										vue.getTabEnnemi().get(i).changeImg("tortueArretDroite.png");
+									}
 								}
 							}
 							vue.getTabEnnemi().get(i).avancer(vue.getTabEnnemi().get(i).getDx());
@@ -269,6 +287,8 @@ public class Controller{
 	 * Cette méthode permet que losque l'on perd et que l'on appui sur le bouton adéquat de relancer le niveau.
 	 */
 	public void restart() {
+		vue.setLevel(1);
+		vue.createLevel();
 		Mario.setRunning(true);
 		for(int i=0; i < model.size(); i++) {
 			model.get(i).setVivant(true);
@@ -285,6 +305,7 @@ public class Controller{
 		this.moveEnnemi();
 		vue.setChrono(60);
 		vue.chrono();
+		Mario.setNbMort(Mario.getNbMort()+1);
 		this.ennemiRevive();
 		for(int i=0; i< vue.getTab().size();i++) {
 			if(vue.getTab().get(i).getClass().getName()=="model.Piece") {
@@ -294,6 +315,8 @@ public class Controller{
 			}
 		}
 		vue.getConteneur().remove(vue.getRestart());
+		vue.getSql().setNbMortDB(vue.getSql().getNbMortDB()+1);
+		vue.getSql().update();
 	}
 	
 	/**
@@ -326,12 +349,14 @@ public class Controller{
 		vue.setChrono(60);
 		vue.chrono();
 		vue.getConteneur().remove(vue.getNextLevel());
+		vue.getSql().update();
 	}
 	
 	/**
 	 * Cette méthode lance le solo si l'on a appuié sur le bouton solo dans le menu.
 	 */
 	public void solo() {
+		vue.createLevel();
 		Mario.setRunning(true);
 		this.moveMario();
 		this.moveEnnemi();
@@ -346,6 +371,7 @@ public class Controller{
 	 */
 	public void multi() {
 		vue.createJoueur2();
+		vue.createLevel();
 		Mario.setRunning(true);
 		this.moveMario();
 		this.moveEnnemi();

@@ -3,9 +3,8 @@ package test;
 import java.util.ArrayList;
 
 import controller.Controller;
-import model.Client;
 import model.Mario;
-import model.Serveur;
+import view.VueConsole;
 import view.VueGUI;
 
 /**
@@ -26,18 +25,15 @@ public class Main {
 		Controller control= new Controller(tabMario);
 		//instancie l'interface graphique.
 		VueGUI vueGui= new VueGUI(tabMario, control);
-		//crée le premier niveau.
-		vueGui.createLevel();
-		//Serveur serveur= new Serveur();
-		//Client client= new Client();
 		//instancie l'interface console.
-		//VueConsole vueConsole= new VueConsole(tabMario, control);
+		VueConsole vueConsole= new VueConsole(tabMario, control);
 		//crée la map dans l'interface console.
-		//vueConsole.createGrille();
+		vueConsole.createGrille();
+		vueConsole.scan();
 		//passe l'instance de l'interface graphique au controller.
 		control.addViewGUI(vueGui);
 		//passe l'instance de l'interface console au controller.
-		//control.addViewConsole(vueConsole);
+		control.addViewConsole(vueConsole);
 		//lance le chrono dés que l'on a choisit le mode de jeu.
 		vueGui.chrono();
 		//lance le thread qui gère les déplacements de mario dés que l'on a choisit le mode de jeu.

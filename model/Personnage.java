@@ -16,9 +16,6 @@ import model.Objet;
  */
 public abstract class Personnage extends Observable{
 	
-	//Cette variable gère la taille intiale du tableau des collissions entre le ou les joueurs et les objets.
-	private int tabObjSize=15;
-	
 	//Cette variable donne la position en x du personnage.
 	protected int x;
 	//Cette variable donne le déplacement en x.
@@ -38,7 +35,7 @@ public abstract class Personnage extends Observable{
 	//Cette variable donne la hauteur du personnage pour la hitBox.
 	protected int hauteur;
 	//Cette variable gère toute les collsions des objets et les placent dans le tableau.
-	protected boolean [] isCollision= new boolean [tabObjSize];
+	protected ArrayList <Boolean> isCollision= new ArrayList<Boolean>();
 	//Cette variable donne la constante pour connaitre le temps a mettre dans le sleep des threads qui gèrent le déplacement.
 	protected int fps;
 	//Cette variable donne la position en x dans la console.
@@ -69,10 +66,8 @@ public abstract class Personnage extends Observable{
 	 * @return renvoie true si il y en a un a true, au sinon renvoie false.
 	 */
 	public boolean checkCollision() {
-		for(int i=0; i<isCollision.length; i++) {
-			if(isCollision[i]==true) {
-				return true;
-			}
+		if(isCollision.contains(true)) {
+			return true;
 		}
 		return false;
 	}
@@ -96,10 +91,6 @@ public abstract class Personnage extends Observable{
 	
 	public Rectangle getHitBox() {
 		return hitBox;
-	}
-	
-	public int getTabObjSize() {
-		return tabObjSize;
 	}
 	
 	public boolean isVivant() {
@@ -142,10 +133,6 @@ public abstract class Personnage extends Observable{
 	public void setVivant(boolean isVivant) {
 		this.isVivant = isVivant;
 	}
-
-	public void setTabObjSize(int tabObjSize) {
-		this.tabObjSize = tabObjSize;
-	}
 	
 	public void setFps(int fps) {
 		this.fps = fps;
@@ -159,11 +146,11 @@ public abstract class Personnage extends Observable{
 		this.dx = dx;
 	}
 
-	public boolean[] getIsCollision() {
+	public ArrayList<Boolean> getIsCollision() {
 		return isCollision;
 	}
 
-	public void setIsCollision(boolean[] isCollision) {
+	public void setIsCollision(ArrayList<Boolean> isCollision) {
 		this.isCollision = isCollision;
 	}
 }

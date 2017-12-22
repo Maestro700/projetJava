@@ -40,7 +40,7 @@ public class Ennemi extends Personnage{
 		super.hitBox= new Rectangle(this.x+dx, this.y, this.largeur, this.hauteur);
 		for(int i=0; i<obj.size(); i++) {
 			if (this.hitBox.intersects(obj.get(i).hitBox)) {
-				this.isCollision[i]=true;
+				this.getIsCollision().set(i, true);
 				if(this.x<(obj.get(i).x-obj.get(i).largeur/2)) {
 					this.dx=-1;
 				}
@@ -49,7 +49,7 @@ public class Ennemi extends Personnage{
 				}
 			}
 			else {
-				this.isCollision[i]=false;
+				this.getIsCollision().set(i, false);
 			}
 		}
 		notifyObservers();

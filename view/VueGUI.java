@@ -15,6 +15,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import controller.Controller;
 import model.Bloc;
@@ -24,6 +25,7 @@ import model.Mario;
 import model.Objet;
 import model.Piece;
 import model.Son;
+import model.Sql;
 import model.Tuyau;
 import model.goomba;
 import model.koopa;
@@ -49,6 +51,8 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	private JButton solo;
 	//Cette variable crée un bouton pour lancer la partie en multijoueur.
 	private JButton multijoueur;
+	//Cette variable valide les identifiants.
+	private JButton valider;
 	
 	//Cette variable crée la fenètre de jeu, intitulé mario.
 	private JFrame frame;
@@ -56,6 +60,10 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	private JPanel conteneur;
 	//Cette variable crée le conteneur dans la fenètre qui se lance au début de la partie pour savoir si on joue en solo ou multijoueur.
 	private JPanel menu;
+	//Cette variable crée le conteneur dans la fenètre qui se lance lorque l'on a fini tout les niveaux.
+	private JPanel menuFin;
+	//Cette variable crée le conteneur dans la fenètre qui se lance dés le début pour se connecter.
+	private JPanel menuConnection;
 	
 	//Cette variable crée l'icon de l'image de fond.
 	private ImageIcon fond;
@@ -81,6 +89,10 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	private Image victory;
 	//Cette variable crée l'image de la vie actuelle de mario.
 	private Image coeur;
+	//Cette variable crée l'image si l'on arrive à la fin de tout les niveaux.
+	private Image congratulation;
+	//Cette variable crée l'image du menu ou l'on se connecte.
+	private Image marioMenu;
 	
 	//Cette variable crée le son si l'on a perdu la partie.
 	private Son fini;
@@ -88,6 +100,13 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	private Son perdu;
 	//Cette variable crée le son du menu.
 	private Son menuSon;
+	//Cette variable crée le son si l'on a fait tout les niveaux.
+	private Son congrats;
+	
+	//Cette variable sert a se connecter avec son nom d'utilisateur.
+	private JTextField username;
+	//Cette variable sert a se connecter avec le mot de passe lié à l'utilisateur.
+	private JTextField password;
 	
 	//Cette variable crée le tableau qui regroupe tout les objets du niveau.
 	private ArrayList <Objet> tab;
@@ -95,6 +114,9 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	private ArrayList <Ennemi> tabEnnemi;
 	//Cette variable crée le tableau qui regroupe toutes les pièces du niveau.
 	private ArrayList <Piece> piece;
+	
+	//Cette variable crée une instance de la classe Sql.
+	private Sql sql;
 	
 	/**
 	 * Cette méthode est le constructeur de la classe et définit toute les variables
@@ -106,6 +128,10 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	public VueGUI(ArrayList <Mario> mario, Controller control) {
 		
 		super(mario, control);
+		
+		sql= new Sql();
+		//crée la connexion à notre db.
+		sql.connexion();
 		
 		this.police= new Font("GILL SANS ULTRA BOLD CONDENSED", Font.PLAIN, 18);
 		this.level=1;
@@ -123,6 +149,8 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 		this.gameOver=new ImageIcon(getClass().getResource("/images/gameOver.png")).getImage();
 		this.victory=new ImageIcon(getClass().getResource("/images/Victory.png")).getImage();
 		this.coeur= new ImageIcon(getClass().getResource("/images/coeur.png")).getImage();
+		this.congratulation= new ImageIcon(getClass().getResource("/images/congrats.png")).getImage();
+		this.marioMenu= new ImageIcon(getClass().getResource("/images/marioMenuConnection.png")).getImage();
 		
 		frame = new JFrame("mario");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -154,6 +182,49 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 		
 		menuSon= new Son("/son/marioMenuSon.wav");
 		
+		valider = new JButton("Valider");
+		valider.setBounds(825, 240, 100, 30);
+		valider.addActionListener(this);
+		valider.setBackground(new Color(44, 62, 80));
+		valider.setForeground(Color.WHITE);
+		
+		username= new JTextField();
+		username.setBounds(800, 150, 150, 30);
+		username.setBackground(new Color(44, 62, 80));
+		username.setForeground(Color.WHITE);
+		
+		password= new JTextField();
+		password.setBounds(800, 200, 150, 30);
+		password.setBackground(new Color(44, 62, 80));
+		password.setForeground(Color.WHITE);
+		
+		menuConnection= new JPanel() {
+			public void paintComponent(Graphics g) {
+				super.paintComponents(g);
+				g.setFont(police);
+				g.setColor(Color.WHITE);
+				g.drawImage(marioMenu, 260, -20, 1300, 480, null);
+				g.drawString("Username : ", 655, 170);
+				g.drawString("Password : ", 655, 220);
+				
+				menuConnection.add(valider);
+				menuConnection.add(username);
+				menuConnection.add(password);
+			}
+		};
+		
+		menuFin= new JPanel() {
+			public void paintComponent(Graphics g) {
+				g.setFont(police);
+				g.drawImage(congratulation, 600, 50,600, 275, null);
+				g.drawString("Votre score total est : "+Mario.getScore(), 780, 300);
+				g.drawString("Meilleur score : "+sql.getScoreTot(), 810, 320);
+				g.drawString("Vous êtes mort "+Mario.getNbMort()+ " fois dans cette partie", 750, 350);
+				g.drawString("Vous êtes mort "+sql.getNbMortDB()+ " fois au total", 770, 370);
+				setCongrats(new Son("/son/congrats.wav"));
+			}
+		};
+		
 		menu = new JPanel() {
 			public void paintComponent(Graphics h) {
 				menu.paintComponents(h);
@@ -177,9 +248,11 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 				g.drawImage(chateauFin, 1800, 218, null);
 				g.setFont(police);
 				g.setColor(new Color(44, 62, 80));
-				g.drawString("Votre score acuel est :"+Mario.getScore(), 0, 20);
-				g.drawString("HP : ", 450, 18);
+				g.drawString("Votre score acuel est : "+Mario.getScore(), 250, 20);
+				g.drawString(username.getText(), 0, 20);
+				g.drawString("HP : ", 650, 18);
 				g.drawString("Temps restant : "+chrono, 1000, 18);
+				g.drawString("Votre niveau actuel : "+level, 1700, 20);
 				for(int i=0; i<tab.size(); i++) {
 					if(tab.get(i).getClass().getName()!="model.Piece") {
 						g.drawImage(tab.get(i).getImg(), tab.get(i).getX(), tab.get(i).getY(), null);
@@ -193,9 +266,17 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 					if(tab.get(i).getClass().getName()=="model.DrapeauFin") {
 						for(int j=0; j<mario.size(); j++) {
 							if(mario.get(j).isFin()==true) {
-								fini = new Son("/son/gameVictory.wav");
-								g.drawImage(victory, 650, 0,500, 300, null);
-								conteneur.add(nextLevel);
+								if(level<3) {
+									fini = new Son("/son/gameVictory.wav");
+									g.drawImage(victory, 650, 0,500, 300, null);
+									conteneur.add(nextLevel);
+								}
+								else {
+									frame.setContentPane(menuFin);
+									menuFin.requestFocusInWindow();
+									frame.setVisible(true);
+									sql.update();
+								}
 							}
 						}
 					}
@@ -219,13 +300,13 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 					if(mario.get(i).isVivant()==true) {
 						g.drawImage(mario.get(i).getImg(), mario.get(i).getX(), mario.get(i).getY(), 28, 50, null);
 						for(int j=0; j<Mario.getHP(); j++) {
-							g.drawImage(coeur, 500+j*20, 5, null);
+							g.drawImage(coeur, 700+j*20, 5, null);
 						}
 					}
 					else {
 						Mario.setRunning(false);
 						perdu= new Son("/son/gameOver.wav");
-						mario.get(i).changeImg("marioMeurt.png");
+						mario.get(i).changeImg("tombe.png");
 						g.drawImage(mario.get(i).getImg(), mario.get(i).getX(), mario.get(i).getY()+10, null);
 						g.drawImage(gameOver, 750, 0, 300,300, null);
 						conteneur.add(restart);
@@ -243,7 +324,7 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 		conteneur.addKeyListener(this);
 		conteneur.setFocusable(true);
 		
-		frame.setContentPane(menu);
+		frame.setContentPane(menuConnection);
 	}
 	
 	/**
@@ -272,15 +353,21 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 			this.tab.add(new Bloc(280, 337, "bloc.png"));
 			this.tab.add(new DrapeauFin(1700, 187, "drapeau.png"));
 			this.piece.add(new Piece(460, 272, "piece.png"));
-			this.piece.add(new Piece(1010, 272, "piece.png"));
+			this.piece.add(new Piece(904, 212, "piece.png"));
 			this.piece.add(new Piece(700, 272, "piece.png"));
-			this.piece.add(new Piece(250, 272, "piece.png"));
-			this.piece.add(new Piece(1650, 300, "piece.png"));
+			this.piece.add(new Piece(270, 250, "piece.png"));
+			this.piece.add(new Piece(1505, 300, "piece.png"));
 			this.piece.add(new Piece(1200, 272, "piece.png"));
 			this.tab.addAll(piece);
 			
 			for(int i=0; i < piece.size(); i++) {
 				piece.get(i).movePiece();
+			}
+			
+			for(int i=0; i < mario.size(); i++) {
+				for(int j=0; j < tab.size(); j++) {
+					mario.get(i).getIsCollision().add(false);
+				}
 			}
 			
 			this.tabEnnemi=new ArrayList<Ennemi>();
@@ -291,10 +378,16 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 			this.tabEnnemi.add(new koopa(320, 340, "champMarcheDroite.png"));
 			this.tabEnnemi.add(new koopa(1100, 340, "champMarcheDroite.png"));
 			this.tabEnnemi.add(new koopa(1050, 340, "champMarcheDroite.png"));
-			this.tabEnnemi.add(new goomba(1400, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1400, 340, "champMarcheDroite.png"));
 			this.tabEnnemi.add(new goomba(850, 320, "tortueMarcheDroite.png"));
 			this.tabEnnemi.add(new goomba(550, 320, "tortueMarcheDroite.png"));
 			this.tabEnnemi.add(new goomba(1250, 320, "tortueMarcheDroite.png"));
+			
+			for(int i=0; i < tabEnnemi.size(); i++) {
+				for(int j=0; j < tab.size(); j++) {
+					tabEnnemi.get(i).getIsCollision().add(false);
+				}
+			}
 		}
 		if(this.level==2) {
 			
@@ -303,24 +396,25 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 			}
 			
 			this.tab=new ArrayList<Objet>();
+			this.piece= new ArrayList<Piece>();
 			this.tab.add(new Tuyau(250, 302, "tuyauRouge.png"));
 			this.tab.add(new Tuyau(1000, 302, "tuyauRouge.png"));
-			this.tab.add(new Tuyau(1630, 302, "tuyauRouge.png"));
+			this.tab.add(new Tuyau(1610, 302, "tuyauRouge.png"));
 			this.tab.add(new Bloc(1100, 220, "bloc.png"));
 			this.tab.add(new Bloc(1430, 290, "bloc.png"));
-			this.tab.add(new Bloc(1150, 148, "bloc.png"));
+			this.tab.add(new Bloc(1150, 138, "bloc.png"));
 			this.tab.add(new Bloc(310, 220, "bloc.png"));
 			this.tab.add(new Bloc(620, 310, "bloc.png"));
 			this.tab.add(new Bloc(500, 220, "bloc.png"));
 			this.tab.add(new Bloc(690, 220, "bloc.png"));
 			this.tab.add(new Bloc(880, 220, "bloc.png"));
 			this.tab.add(new DrapeauFin(1700, 187, "drapeau.png"));
-			this.piece.add(new Piece(460, 272, "piece.png"));
+			this.piece.add(new Piece(503, 190, "piece.png"));
 			this.piece.add(new Piece(1010, 272, "piece.png"));
-			this.piece.add(new Piece(700, 272, "piece.png"));
-			this.piece.add(new Piece(250, 272, "piece.png"));
-			this.piece.add(new Piece(1650, 300, "piece.png"));
-			this.piece.add(new Piece(1200, 272, "piece.png"));
+			this.piece.add(new Piece(750, 272, "piece.png"));
+			this.piece.add(new Piece(260, 272, "piece.png"));
+			this.piece.add(new Piece(1153, 110, "piece.png"));
+			this.piece.add(new Piece(1250, 230, "piece.png"));
 			this.tab.addAll(piece);
 
 			for(int i=0; i < piece.size(); i++) {
@@ -328,7 +422,9 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 			}
 			
 			for(int i=0; i < mario.size(); i++) {
-				mario.get(i).setIsCollision(new boolean [tab.size()]);
+				for(int j=0; j < tab.size(); j++) {
+					mario.get(i).getIsCollision().add(false);
+				}
 			}
 			
 			this.tabEnnemi=new ArrayList<Ennemi>();
@@ -348,10 +444,87 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 			this.tabEnnemi.add(new goomba(800, 320, "tortueMarcheDroite.png"));
 			this.tabEnnemi.add(new goomba(360, 320, "tortueMarcheDroite.png"));
 			this.tabEnnemi.add(new goomba(740, 320, "tortueMarcheDroite.png"));
+			
+			for(int i=0; i < tabEnnemi.size(); i++) {
+				for(int j=0; j < tab.size(); j++) {
+					tabEnnemi.get(i).getIsCollision().add(false);
+				}
+			}
 		}
 		
 		if(this.level==3) {
+			for(int i=0; i<mario.size(); i++) {
+			    mario.get(i).setFin(false);
+			}
+			this.tab=new ArrayList<Objet>();
+			this.piece= new ArrayList<Piece>();
+			this.tab.add(new Tuyau(250, 302, "tuyauRouge.png"));
+			this.tab.add(new Tuyau(790, 175, "tuyauRouge.png"));
+			this.tab.add(new Tuyau(950, 302, "tuyauRouge.png"));
+			this.tab.add(new Tuyau(448, 175, "tuyauRouge.png"));
+			this.tab.add(new Tuyau(1150, 302, "tuyauRouge.png"));
+			this.tab.add(new Bloc(300, 210, "bloc.png"));
+			this.tab.add(new Bloc(450, 240, "bloc.png"));
+			this.tab.add(new Bloc(480, 240, "bloc.png"));
+			this.tab.add(new Bloc(510, 240, "bloc.png"));
+			this.tab.add(new Bloc(540, 240, "bloc.png"));
+			this.tab.add(new Bloc(570, 240, "bloc.png"));
+			this.tab.add(new Bloc(600, 240, "bloc.png"));
+			this.tab.add(new Bloc(630, 240, "bloc.png"));
+			this.tab.add(new Bloc(660, 240, "bloc.png"));
+			this.tab.add(new Bloc(690, 240, "bloc.png"));
+			this.tab.add(new Bloc(710, 240, "bloc.png"));
+			this.tab.add(new Bloc(740, 240, "bloc.png"));
+			this.tab.add(new Bloc(770, 240, "bloc.png"));
+			this.tab.add(new Bloc(800, 240, "bloc.png"));
+			this.tab.add(new Bloc(675, 140, "bloc.png"));
+			this.tab.add(new Bloc(1300, 220, "bloc.png"));
+			this.tab.add(new Bloc(1470, 220, "bloc.png"));
+			this.tab.add(new Bloc(900, 120, "bloc.png"));
+			this.tab.add(new DrapeauFin(1700, 187, "drapeau.png"));
+			this.piece.add(new Piece(957, 272, "piece.png"));
+			this.piece.add(new Piece(640, 280, "piece.png"));
+			this.piece.add(new Piece(258, 272, "piece.png"));
+			this.piece.add(new Piece(678, 110, "piece.png"));
+			this.piece.add(new Piece(1473, 190, "piece.png"));
+			this.tab.addAll(piece);
 			
+			for(int i=0; i < piece.size(); i++) {
+				piece.get(i).movePiece();
+			}
+			
+			for(int i=0; i < mario.size(); i++) {
+				for(int j=0; j < tab.size(); j++) {
+					mario.get(i).getIsCollision().add(false);
+				}
+			}
+			
+			this.tabEnnemi=new ArrayList<Ennemi>();
+			this.tabEnnemi.add(new koopa(600, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(450, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1485, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(470, 210, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(485, 210, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(600, 210, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(700, 210, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1000, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(900, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(850, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1300, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new koopa(1450, 340, "champMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(950, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(500, 190, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(750, 190, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(1400, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(1250, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(1600, 320, "tortueMarcheDroite.png"));
+			this.tabEnnemi.add(new goomba(800, 320, "tortueMarcheDroite.png"));
+			
+			for(int i=0; i < tabEnnemi.size(); i++) {
+				for(int j=0; j < tab.size(); j++) {
+					tabEnnemi.get(i).getIsCollision().add(false);
+				}
+			}
 		}
 	}
 	
@@ -399,6 +572,9 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	 */
 	@Override
 	public void keyPressed(KeyEvent e) {
+		if(e.getKeyCode()==KeyEvent.VK_T) {
+			
+		}
 		for(int i=0; i < mario.size(); i++) {
 			if(mario.get(i).getNbJoueur()==1) {
 				switch(e.getKeyCode()) {
@@ -436,6 +612,7 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 			}
 		}
 	}
+	
 	/**
 	 * Cette méthode est appelée dés que l'on relâche un touche.
 	 */
@@ -499,6 +676,14 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 			control.multi();
 			menuSon.arreteSon();
 		}
+		if(e.getSource()== valider) {
+			if(!username.getText().toString().equals("") &&  !password.getText().toString().equals("")) {
+				sql.login(username.getText().toString(), password.getText().toString());
+				menuConnection.setVisible(false);
+				frame.setContentPane(menu);
+				frame.setVisible(true);
+			}
+		}
 	}
 	
 	/*****GETTERS*****/
@@ -546,6 +731,14 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 		return piece;
 	}
 	
+	public Son getCongrats() {
+		return congrats;
+	}
+	
+	public Sql getSql() {
+		return sql;
+	}
+	
 	/*****SETTERS*****/
 	public void setConteneur(JPanel conteneur) {
 		this.conteneur = conteneur;
@@ -590,4 +783,13 @@ public class VueGUI extends VueGenerale implements KeyListener, ActionListener{
 	public void setPiece(ArrayList<Piece> piece) {
 		this.piece = piece;
 	}
+
+	public void setCongrats(Son congrats) {
+		this.congrats = congrats;
+	}
+
+	public void setSql(Sql sql) {
+		this.sql = sql;
+	}
+	
 }
